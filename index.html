@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LATIV | NTT MASTER LEADERBOARD</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root { --bg: #000; --accent: #00f2ff; --card: #111; --text: #fff; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        .app-container { width: 100%; max-width: 600px; padding: 20px; display: flex; flex-direction: column; position: relative; }
+        .logo { font-size: 2.2rem; font-weight: bold; color: var(--accent); text-align: center; margin-bottom: 5px; text-shadow: 0 0 15px var(--accent); }
+        .chat-window { background: var(--card); border: 1px solid #222; border-radius: 20px; flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        #chat-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 0.95rem; animation: slideIn 0.3s ease; line-height: 1.4; }
+        .ai-msg { background: #222; align-self: flex-start; border: 1px solid #333; color: #eee; }
+        .user-msg { background: var(--accent); color: #000; align-self: flex-end; font-weight: 600; }
+        .input-area { display: flex; gap: 10px; background: #111; padding: 10px; border-radius: 15px; border: 1px solid #222; }
+        input { flex: 1; background: transparent; border: none; color: #fff; padding: 10px; outline: none; font-size: 1rem; }
+        button { background: var(--accent); color: #000; border: none; padding: 10px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:active { transform: scale(0.95); }
+
+        /* Leaderboard & Controls */
+        .leaderboard { position: absolute; top: 80px; right: -280px; width: 240px; background: #080808; border: 1px solid var(--accent); border-radius: 15px; padding: 15px; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 50; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
+        .leaderboard.active { right: 20px; }
+        .leaderboard h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: var(--accent); text-align: center; border-bottom: 1px solid #333; padding-bottom: 8px; letter-spacing: 2px; }
+        .score-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; padding: 5px 0; border-bottom: 1px dashed #222; }
+        .btn-top { position: absolute; top: 20px; padding: 6px 12px; font-size: 0.7rem; letter-spacing: 1px; }
+
+        .modal { position: fixed; top:0; left:0; width:100%; height:100%; background: #000; z-index:100; display: flex; align-items: center; justify-content: center; }
+        .modal-box { border: 1px solid var(--accent); padding: 40px; border-radius: 25px; text-align: center; background: #080808; width: 90%; max-width: 400px; box-shadow: 0 0 30px var(--accent); }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <audio id="bgm" src="bg-music.mp3" loop></audio>
+
+    <div id="login-modal" class="modal">
+        <div class="modal-box">
+            <h1 style="color:var(--accent); margin:0;">LATIV × NTT</h1>
+            <p style="opacity: 0.5; font-size: 0.8rem; margin-top: 5px;">HỆ THỐNG GIẢI MÃ QUẬN 7</p>
+            <input type="text" id="player-name" placeholder="Tên của bạn..." style="width: 100%; margin: 25px 0; background: #1a1a1a; border: 1px solid #333; padding: 15px; border-radius: 10px; color: #fff;">
+            <button onclick="startGame()" style="width: 100%; padding: 15px;">KHÁM PHÁ NGAY</button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <button class="btn-top" onclick="toggleLeaderboard()" style="right: 20px;">RANKING</button>
+        <button class="btn-top" onclick="resetScores()" style="left: 20px; background: #222; color: #555;">RESET</button>
+        
+        <div id="leaderboard" class="leaderboard">
+            <h3>BẢNG XẾP HẠNG</h3>
+            <div id="score-list"></div>
+            <p style="font-size: 0.6rem; text-align: center; margin-top: 10px; opacity: 0.4;">Sắp xếp theo số lượt đoán ít nhất</p>
+        </div>
+
+        <div class="logo">LATIV <span>× NTT</span></div>
+        <div style="text-align: center; color: var(--accent); font-size: 0.7rem; margin-bottom: 15px; letter-spacing: 2px;">Mind Reader - NTT Welcome!</div>
+
+        <div class="chat-window">
+            <div id="chat-content">
+                <div class="msg ai-msg">Chào bạn! Hãy giải mã từ khóa về Quận 7 để lên TOP BXH nhé! Nhấn Enter để gửi.</div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Gõ dự đoán...">
+            <button id="send-btn">GỬI</button>
+        </div>
+        
+        <p style="text-align: center; font-size: 0.6rem; opacity: 0.3; margin-top: 15px;">Powered by **LATIV**</p>
+    </div>
+
+    <script>
+        const database = [
+            { word: "nguyenthithap", hints: ["Con đường chính sầm uất Quận 7", "Nơi đặt cơ sở chính của NTT", "Tên một nữ anh hùng"] },
+            { word: "himlam", hints: ["Khu đô thị có Sunrise City", "Nằm gần cầu Ông Lớn", "Khu dân cư có Lotte Mart"] },
+            { word: "skygarden", hints: ["Khu chung cư ở Phú Mỹ Hưng", "Có phố đi bộ nội khu", "Nơi có nhiều cộng đồng người Hàn"] },
+            { word: "cauanhsao", hints: ["Cây cầu đi bộ đổi màu", "Phun nước cầu vồng buổi tối", "Gần Hồ Bán Nguyệt"] },
+            { word: "crescentmall", hints: ["TTTM lớn cạnh hồ", "Nơi có rạp phim CGV to", "Điểm hẹn cuối tuần"] },
+            { word: "lativ", hints: ["CLB AI tại trường LTV", "Tên đội ngũ sáng tạo", "Bắt đầu bằng chữ L"] }
+        ];
+        
+        let currentItem = database[Math.floor(Math.random() * database.length)];
+        let targetWord = currentItem.word;
+        let tries = 0;
+        let isGameOver = false;
+        let isProcessing = false;
+        let currentPlayerName = "";
+
+        const bgm = document.getElementById('bgm');
+        const inputField = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSFX(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(type === 'correct' ? 600 : 150, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        }
+
+        function startGame() {
+            currentPlayerName = document.getElementById('player-name').value.trim();
+            if(currentPlayerName) {
+                document.getElementById('login-modal').style.display = 'none';
+                inputField.focus();
+                bgm.volume = 0.3; bgm.play().catch(()=>{});
+                audioCtx.resume();
+                updateLeaderboardUI();
+            }
+        }
+
+        function toggleLeaderboard() {
+            document.getElementById('leaderboard').classList.toggle('active');
+        }
+
+        function resetScores() {
+            if(confirm("Xóa toàn bộ BXH để bắt đầu lại?")) {
+                localStorage.removeItem('lativ_scores');
+                updateLeaderboardUI();
+            }
+        }
+
+        function updateLeaderboardUI() {
+            const scores = JSON.parse(localStorage.getItem('lativ_scores') || '[]');
+            const list = document.getElementById('score-list');
+            list.innerHTML = scores.length ? scores.map((s, i) => `
+                <div class="score-row">
+                    <span>${i+1}. ${s.name}</span>
+                    <span style="color:var(--accent)">${s.tries} câu</span>
+                </div>
+            `).join('') : '<p style="text-align:center; opacity:0.3; font-size:0.7rem;">Chưa có kỷ lục nào</p>';
+        }
+
+        function saveScore(name, tries) {
+            let scores = JSON.parse(localStorage.getItem('lativ_scores') || '[]');
+            scores.push({ name, tries });
+            scores.sort((a, b) => a.tries - b.tries);
+            localStorage.setItem('lativ_scores', JSON.stringify(scores.slice(0, 10)));
+            updateLeaderboardUI();
+        }
+
+        function addMsg(text, type) {
+            const content = document.getElementById('chat-content');
+            const div = document.createElement('div');
+            div.className = `msg ${type}-msg`;
+            div.innerText = text;
+            content.appendChild(div);
+            content.scrollTop = content.scrollHeight;
+        }
+
+        function handleAction() {
+            if(isGameOver || isProcessing) return;
+            const rawVal = inputField.value.trim();
+            if(!rawVal) return;
+
+            isProcessing = true;
+            audioCtx.resume();
+
+            const val = rawVal.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '');
+            addMsg(rawVal, 'user');
+            inputField.value = "";
+            tries++;
+
+            setTimeout(() => {
+                if(val === targetWord || (val.length > 3 && targetWord.includes(val))) {
+                    playSFX('correct');
+                    addMsg(`CHÍNH XÁC! Bạn thắng sau ${tries} lượt. Đã lưu vào BXH!`, 'ai');
+                    saveScore(currentPlayerName, tries);
+                    isGameOver = true;
+                    setTimeout(toggleLeaderboard, 1000); // Tự động hiện rank sau 1s
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                } else {
+                    playSFX('wrong');
+                    if (tries >= 10) {
+                        addMsg(`HẾT LƯỢT. Đáp án là: ${targetWord.toUpperCase()}.`, 'ai');
+                        isGameOver = true;
+                    } else {
+                        const hintIdx = (tries - 1) % currentItem.hints.length;
+                        addMsg(`Gợi ý: ${currentItem.hints[hintIdx]}`, "ai");
+                    }
+                }
+                isProcessing = false;
+            }, 500);
+        }
+
+        sendBtn.addEventListener('click', (e) => { e.preventDefault(); handleAction(); });
+        inputField.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleAction(); } });
+    </script>
+</body>
+</html>
