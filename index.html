@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LATIV | NTT MASTER LEADERBOARD</title>
+    <title>LATIV | CITY EXPLORER</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --bg: #000; --accent: #00f2ff; --card: #111; --text: #fff; }
@@ -17,18 +17,15 @@
         .user-msg { background: var(--accent); color: #000; align-self: flex-end; font-weight: 600; }
         .input-area { display: flex; gap: 10px; background: #111; padding: 10px; border-radius: 15px; border: 1px solid #222; }
         input { flex: 1; background: transparent; border: none; color: #fff; padding: 10px; outline: none; font-size: 1rem; }
-        button { background: var(--accent); color: #000; border: none; padding: 10px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        button:active { transform: scale(0.95); }
-
-        /* Leaderboard & Controls */
-        .leaderboard { position: absolute; top: 80px; right: -280px; width: 240px; background: #080808; border: 1px solid var(--accent); border-radius: 15px; padding: 15px; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 50; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
+        button { background: var(--accent); color: #000; border: none; padding: 10px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        
+        .leaderboard { position: absolute; top: 80px; right: -280px; width: 240px; background: #080808; border: 1px solid var(--accent); border-radius: 15px; padding: 15px; transition: 0.5s; z-index: 50; }
         .leaderboard.active { right: 20px; }
-        .leaderboard h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: var(--accent); text-align: center; border-bottom: 1px solid #333; padding-bottom: 8px; letter-spacing: 2px; }
-        .score-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; padding: 5px 0; border-bottom: 1px dashed #222; }
-        .btn-top { position: absolute; top: 20px; padding: 6px 12px; font-size: 0.7rem; letter-spacing: 1px; }
+        .score-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; border-bottom: 1px dashed #222; padding-bottom: 5px; }
+        .btn-top { position: absolute; top: 20px; padding: 6px 12px; font-size: 0.7rem; cursor: pointer; border-radius: 8px; border: 1px solid #333; }
 
         .modal { position: fixed; top:0; left:0; width:100%; height:100%; background: #000; z-index:100; display: flex; align-items: center; justify-content: center; }
-        .modal-box { border: 1px solid var(--accent); padding: 40px; border-radius: 25px; text-align: center; background: #080808; width: 90%; max-width: 400px; box-shadow: 0 0 30px var(--accent); }
+        .modal-box { border: 1px solid var(--accent); padding: 40px; border-radius: 25px; text-align: center; background: #080808; width: 90%; max-width: 400px; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -38,34 +35,33 @@
 
     <div id="login-modal" class="modal">
         <div class="modal-box">
-            <h1 style="color:var(--accent); margin:0;">LATIV × NTT</h1>
-            <p style="opacity: 0.5; font-size: 0.8rem; margin-top: 5px;">HỆ THỐNG GIẢI MÃ QUẬN 7</p>
+            <h1 style="color:var(--accent); margin:0;">LATIV</h1>
+            <p style="opacity: 0.5; font-size: 0.8rem; margin-top: 5px;">GIẢI MÃ ĐỊA DANH SÀI GÒN</p>
             <input type="text" id="player-name" placeholder="Tên của bạn..." style="width: 100%; margin: 25px 0; background: #1a1a1a; border: 1px solid #333; padding: 15px; border-radius: 10px; color: #fff;">
             <button onclick="startGame()" style="width: 100%; padding: 15px;">KHÁM PHÁ NGAY</button>
         </div>
     </div>
 
     <div class="app-container">
-        <button class="btn-top" onclick="toggleLeaderboard()" style="right: 20px;">RANKING</button>
+        <button class="btn-top" onclick="toggleLeaderboard()" style="right: 20px; background: var(--accent); color: #000;">BXH</button>
         <button class="btn-top" onclick="resetScores()" style="left: 20px; background: #222; color: #555;">RESET</button>
         
         <div id="leaderboard" class="leaderboard">
-            <h3>BẢNG XẾP HẠNG</h3>
+            <h3 style="color:var(--accent); text-align:center; margin-top:0;">TOP KHÁM PHÁ</h3>
             <div id="score-list"></div>
-            <p style="font-size: 0.6rem; text-align: center; margin-top: 10px; opacity: 0.4;">Sắp xếp theo số lượt đoán ít nhất</p>
         </div>
 
-        <div class="logo">LATIV <span>× NTT</span></div>
-        <div style="text-align: center; color: var(--accent); font-size: 0.7rem; margin-bottom: 15px; letter-spacing: 2px;">Mind Reader - NTT Welcome!</div>
+        <div class="logo">LATIV <span>PROJECT</span></div>
+        <div style="text-align: center; color: var(--accent); font-size: 0.7rem; margin-bottom: 15px; letter-spacing: 2px;">CITY EXPLORER - HCMC EDITION</div>
 
         <div class="chat-window">
             <div id="chat-content">
-                <div class="msg ai-msg">Chào bạn! Hãy giải mã từ khóa về Quận 7 để lên TOP BXH nhé! Nhấn Enter để gửi.</div>
+                <div class="msg ai-msg">Chào bạn! Hãy đoán các địa danh nổi tiếng của TP.HCM. Cố gắng giải mã với số câu ít nhất nhé!</div>
             </div>
         </div>
 
         <div class="input-area">
-            <input type="text" id="user-input" placeholder="Gõ dự đoán...">
+            <input type="text" id="user-input" placeholder="Dự đoán của bạn...">
             <button id="send-btn">GỬI</button>
         </div>
         
@@ -74,12 +70,13 @@
 
     <script>
         const database = [
-            { word: "nguyenthithap", hints: ["Con đường chính sầm uất Quận 7", "Nơi đặt cơ sở chính của NTT", "Tên một nữ anh hùng"] },
-            { word: "himlam", hints: ["Khu đô thị có Sunrise City", "Nằm gần cầu Ông Lớn", "Khu dân cư có Lotte Mart"] },
-            { word: "skygarden", hints: ["Khu chung cư ở Phú Mỹ Hưng", "Có phố đi bộ nội khu", "Nơi có nhiều cộng đồng người Hàn"] },
-            { word: "cauanhsao", hints: ["Cây cầu đi bộ đổi màu", "Phun nước cầu vồng buổi tối", "Gần Hồ Bán Nguyệt"] },
-            { word: "crescentmall", hints: ["TTTM lớn cạnh hồ", "Nơi có rạp phim CGV to", "Điểm hẹn cuối tuần"] },
-            { word: "lativ", hints: ["CLB AI tại trường LTV", "Tên đội ngũ sáng tạo", "Bắt đầu bằng chữ L"] }
+            { word: "landmark81", hints: ["Tòa nhà cao nhất Việt Nam", "Nằm ở khu vực Tân Cảng", "Có hình dáng bó tre"] },
+            { word: "cho-ben-thanh", hints: ["Biểu tượng lâu đời của Sài Gòn", "Có 4 cửa chính: Đông, Tây, Nam, Bắc", "Nằm ngay trung tâm Quận 1"] },
+            { word: "nha-tho-duc-ba", hints: ["Công trình kiến trúc Pháp cổ điển", "Nằm cạnh Bưu điện Thành phố", "Đang trong quá trình trùng tu"] },
+            { word: "dinh-doc-lap", hints: ["Nơi đánh dấu sự kiện 30/4/1975", "Kiến trúc hình chữ CÁT", "Tên gọi khác là Dinh Thống Nhất"] },
+            { word: "bitexco", hints: ["Tòa nhà hình búp sen", "Có sân đậu trực thăng lơ lửng", "Từng là biểu tượng cao nhất thành phố"] },
+            { word: "ho-con-rua", hints: ["Điểm hẹn hò, ăn vặt nổi tiếng", "Nằm ở vòng xoay giữa Quận 1 và Quận 3", "Có tháp hình đóa hoa xòe nở"] },
+            { word: "pho-di-bo-nguyen-hue", hints: ["Con đường náo nhiệt nhất mỗi tối", "Nối từ UBND TP đến bến Bạch Đằng", "Nơi tổ chức đường hoa Tết mỗi năm"] }
         ];
         
         let currentItem = database[Math.floor(Math.random() * database.length)];
@@ -87,7 +84,7 @@
         let tries = 0;
         let isGameOver = false;
         let isProcessing = false;
-        let currentPlayerName = "";
+        let playerName = "";
 
         const bgm = document.getElementById('bgm');
         const inputField = document.getElementById('user-input');
@@ -95,7 +92,6 @@
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playSFX(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
@@ -105,44 +101,61 @@
         }
 
         function startGame() {
-            currentPlayerName = document.getElementById('player-name').value.trim();
-            if(currentPlayerName) {
+            playerName = document.getElementById('player-name').value.trim();
+            if(playerName) {
                 document.getElementById('login-modal').style.display = 'none';
-                inputField.focus();
                 bgm.volume = 0.3; bgm.play().catch(()=>{});
                 audioCtx.resume();
                 updateLeaderboardUI();
             }
         }
 
-        function toggleLeaderboard() {
-            document.getElementById('leaderboard').classList.toggle('active');
-        }
+        function toggleLeaderboard() { document.getElementById('leaderboard').classList.toggle('active'); }
 
-        function resetScores() {
-            if(confirm("Xóa toàn bộ BXH để bắt đầu lại?")) {
-                localStorage.removeItem('lativ_scores');
-                updateLeaderboardUI();
-            }
-        }
+        function resetScores() { if(confirm("Xóa BXH?")) { localStorage.removeItem('lativ_scores'); updateLeaderboardUI(); } }
 
         function updateLeaderboardUI() {
             const scores = JSON.parse(localStorage.getItem('lativ_scores') || '[]');
-            const list = document.getElementById('score-list');
-            list.innerHTML = scores.length ? scores.map((s, i) => `
-                <div class="score-row">
-                    <span>${i+1}. ${s.name}</span>
-                    <span style="color:var(--accent)">${s.tries} câu</span>
-                </div>
-            `).join('') : '<p style="text-align:center; opacity:0.3; font-size:0.7rem;">Chưa có kỷ lục nào</p>';
+            document.getElementById('score-list').innerHTML = scores.map((s, i) => `
+                <div class="score-row"><span>${i+1}. ${s.name}</span><span style="color:var(--accent)">${s.tries} lượt</span></div>
+            `).join('') || '<p style="opacity:0.2;text-align:center">Trống</p>';
         }
 
-        function saveScore(name, tries) {
-            let scores = JSON.parse(localStorage.getItem('lativ_scores') || '[]');
-            scores.push({ name, tries });
-            scores.sort((a, b) => a.tries - b.tries);
-            localStorage.setItem('lativ_scores', JSON.stringify(scores.slice(0, 10)));
-            updateLeaderboardUI();
+        function handleAction() {
+            if(isGameOver || isProcessing || !inputField.value.trim()) return;
+
+            isProcessing = true;
+            const rawVal = inputField.value.trim();
+            const val = rawVal.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '').replace(/-/g, '');
+            const targetClean = targetWord.replace(/-/g, '');
+            
+            addMsg(rawVal, 'user');
+            inputField.value = "";
+            tries++;
+
+            setTimeout(() => {
+                if(val === targetClean || (val.length > 3 && targetClean.includes(val))) {
+                    playSFX('correct');
+                    addMsg(`CHÍNH XÁC! Địa danh là "${targetWord.toUpperCase()}". Bạn giải được sau ${tries} lượt.`, 'ai');
+                    let scores = JSON.parse(localStorage.getItem('lativ_scores') || '[]');
+                    scores.push({ name: playerName, tries });
+                    scores.sort((a,b) => a.tries - b.tries);
+                    localStorage.setItem('lativ_scores', JSON.stringify(scores.slice(0, 10)));
+                    isGameOver = true;
+                    updateLeaderboardUI();
+                    setTimeout(toggleLeaderboard, 1000);
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                } else {
+                    playSFX('wrong');
+                    if(tries >= 10) {
+                        addMsg(`HẾT LƯỢT. Địa danh bí mật là: ${targetWord.toUpperCase()}`, 'ai');
+                        isGameOver = true;
+                    } else {
+                        addMsg(`Gợi ý: ${currentItem.hints[(tries-1) % currentItem.hints.length]}`, 'ai');
+                    }
+                }
+                isProcessing = false;
+            }, 600);
         }
 
         function addMsg(text, type) {
@@ -154,43 +167,8 @@
             content.scrollTop = content.scrollHeight;
         }
 
-        function handleAction() {
-            if(isGameOver || isProcessing) return;
-            const rawVal = inputField.value.trim();
-            if(!rawVal) return;
-
-            isProcessing = true;
-            audioCtx.resume();
-
-            const val = rawVal.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '');
-            addMsg(rawVal, 'user');
-            inputField.value = "";
-            tries++;
-
-            setTimeout(() => {
-                if(val === targetWord || (val.length > 3 && targetWord.includes(val))) {
-                    playSFX('correct');
-                    addMsg(`CHÍNH XÁC! Bạn thắng sau ${tries} lượt. Đã lưu vào BXH!`, 'ai');
-                    saveScore(currentPlayerName, tries);
-                    isGameOver = true;
-                    setTimeout(toggleLeaderboard, 1000); // Tự động hiện rank sau 1s
-                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-                } else {
-                    playSFX('wrong');
-                    if (tries >= 10) {
-                        addMsg(`HẾT LƯỢT. Đáp án là: ${targetWord.toUpperCase()}.`, 'ai');
-                        isGameOver = true;
-                    } else {
-                        const hintIdx = (tries - 1) % currentItem.hints.length;
-                        addMsg(`Gợi ý: ${currentItem.hints[hintIdx]}`, "ai");
-                    }
-                }
-                isProcessing = false;
-            }, 500);
-        }
-
-        sendBtn.addEventListener('click', (e) => { e.preventDefault(); handleAction(); });
-        inputField.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleAction(); } });
+        sendBtn.onclick = handleAction;
+        inputField.onkeydown = (e) => { if(e.key === 'Enter') handleAction(); };
     </script>
 </body>
 </html>
