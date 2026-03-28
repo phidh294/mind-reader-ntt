@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LATIV | HCMC EXPLORER</title>
+    <title>LATIV | CITY MASTER</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --bg: #000; --accent: #00f2ff; --card: #111; --text: #fff; }
         body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
         .app-container { width: 100%; max-width: 600px; padding: 20px; display: flex; flex-direction: column; position: relative; }
-        .logo { font-size: 2.5rem; font-weight: bold; color: var(--accent); text-align: center; margin-bottom: 5px; text-shadow: 0 0 15px var(--accent); }
+        .logo { font-size: 2.5rem; font-weight: bold; color: var(--accent); text-align: center; margin-bottom: 5px; text-shadow: 0 0 15px var(--accent); letter-spacing: 5px; }
         .chat-window { background: var(--card); border: 1px solid #222; border-radius: 20px; flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
         #chat-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
         .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 0.95rem; animation: slideIn 0.3s ease; line-height: 1.4; }
@@ -37,51 +37,51 @@
     <div id="login-modal" class="modal">
         <div class="modal-box">
             <h1 style="color:var(--accent); margin:0;">LATIV</h1>
-            <p style="opacity: 0.6; font-size: 0.8rem; margin-top: 5px; letter-spacing: 2px;">MIND READER: TPHCM EDITION</p>
-            <input type="text" id="player-name" placeholder="Nhập tên của bạn..." style="width: 100%; margin: 25px 0; background: #1a1a1a; border: 1px solid #333; padding: 15px; border-radius: 10px; color: #fff; text-align: center;">
-            <button onclick="startGame()" style="width: 100%; padding: 15px;">VÀO TRÒ CHƠI</button>
+            <p style="opacity: 0.6; font-size: 0.7rem; margin-top: 5px; letter-spacing: 2px;">GIẢI MÃ ĐỊA DANH TP.HCM</p>
+            <input type="text" id="player-name" placeholder="Tên của bạn..." style="width: 100%; margin: 25px 0; background: #1a1a1a; border: 1px solid #333; padding: 15px; border-radius: 10px; color: #fff; text-align: center;">
+            <button onclick="startGame()" style="width: 100%; padding: 15px;">KHÁM PHÁ NGAY</button>
         </div>
     </div>
 
     <div class="app-container">
         <button class="btn-top" onclick="toggleLeaderboard()" style="right: 20px; background: var(--accent); color: #000;">BXH</button>
-        <button class="btn-top" onclick="resetScores()" style="left: 20px; background: #222; color: #666; border: none;">RESET</button>
+        <button class="btn-top" onclick="resetScores()" style="left: 20px; background: #222; color: #555; border: none;">RESET</button>
         
         <div id="leaderboard" class="leaderboard">
-            <h3 style="color:var(--accent); text-align:center; margin-top:0; letter-spacing: 2px;">TOP CAO THỦ</h3>
+            <h3 style="color:var(--accent); text-align:center; margin-top:0; letter-spacing: 2px;">BẢNG XẾP HẠNG</h3>
             <div id="score-list"></div>
             <p style="font-size: 0.6rem; text-align: center; margin-top: 10px; opacity: 0.3;">Sắp xếp theo số lượt đoán ít nhất</p>
         </div>
 
         <div class="logo">LATIV</div>
-        <div style="text-align: center; color: var(--accent); font-size: 0.7rem; margin-bottom: 15px; letter-spacing: 3px; opacity: 0.8;">HCMC LANDMARK DECODER</div>
+        <div style="text-align: center; color: var(--accent); font-size: 0.7rem; margin-bottom: 15px; letter-spacing: 3px; opacity: 0.8;">CITY DECODER CHALLENGE</div>
 
         <div class="chat-window">
             <div id="chat-content">
-                <div class="msg ai-msg">Chào bạn! Mình đang giữ từ khóa về một địa danh nổi tiếng tại TP.HCM. Hãy giải mã với số câu ít nhất để lên TOP nhé!</div>
+                <div class="msg ai-msg">Chào bạn! Mình đang giữ từ khóa về một địa danh nổi tiếng tại TP.HCM. Bạn có 11 lượt để giải mã. Hãy bắt đầu!</div>
             </div>
         </div>
 
         <div class="input-area">
-            <input type="text" id="user-input" placeholder="Dự đoán của bạn (không dấu)...">
+            <input type="text" id="user-input" placeholder="Gõ dự đoán tại đây...">
             <button id="send-btn">GỬI</button>
         </div>
         
-        <p style="text-align: center; font-size: 0.6rem; opacity: 0.3; margin-top: 15px;">Powered by **LATIV**</p>
+        <p style="text-align: center; font-size: 0.6rem; opacity: 0.3; margin-top: 15px;">© 2026 LATIV PROJECT</p>
     </div>
 
     <script>
         const database = [
-            { word: "landmark81", hints: ["Tòa nhà cao nhất Việt Nam hiện nay", "Nằm tại khu vực Tân Cảng", "Có kiến trúc lấy cảm hứng từ bó tre truyền thống"] },
-            { word: "chobenthanh", hints: ["Biểu tượng văn hóa lâu đời nhất Sài Gòn", "Có 4 cửa chính nhìn ra các hướng trung tâm Quận 1", "Nổi tiếng với chiếc đồng hồ ở cửa Nam"] },
-            { word: "nhathoducba", hints: ["Công trình kiến trúc Pháp cổ kính bằng gạch đỏ", "Nằm ngay trung tâm Công xã Paris", "Cạnh bên là Bưu điện Thành phố"] },
-            { word: "dinhdoclap", hints: ["Nơi đánh dấu sự kiện lịch sử 30/4/1975", "Tên gọi khác là Dinh Thống Nhất", "Công trình có kiến trúc hình chữ CÁT"] },
-            { word: "bitexco", hints: ["Từng là tòa nhà cao nhất thành phố trước Landmark 81", "Thiết kế hình búp sen hé nở", "Có sân đậu trực thăng ở tầng 52"] },
-            { word: "hoconrua", hints: ["Điểm ăn vặt và hẹn hò nổi tiếng của giới trẻ", "Nằm ở nút giao Quận 1 và Quận 3", "Có tháp bê tông hình bông hoa xòe nở giữa hồ"] },
-            { word: "phodibonguyenhue", hints: ["Con phố náo nhiệt nhất vào mỗi tối cuối tuần", "Nối thẳng từ UBND Thành phố ra Bến Bạch Đằng", "Nơi tổ chức đường hoa lớn nhất mỗi dịp Tết"] },
-            { word: "suoitien", hints: ["Khu du lịch tâm linh nổi tiếng ở TP.HCM", "Gắn liền với các truyền thuyết dân tộc", "Có biển Tiên Đồng Ngọc Nữ"] },
-            { word: "dam-sen", hints: ["Công viên văn hóa lâu đời ở Quận 11", "Có cả khu công viên nước và công viên khô", "Nổi tiếng với các trò chơi cảm giác mạnh"] },
-            { word: "buudienthanhpho", hints: ["Một trong những bưu điện đẹp nhất Đông Nam Á", "Nằm cạnh Nhà thờ Đức Bà", "Kiến trúc mang đậm phong cách châu Âu cổ điển"] }
+            { word: "landmark81", hints: ["Tòa nhà cao nhất Việt Nam hiện nay", "Có hình dáng lấy cảm hứng từ bó tre", "Nằm ở khu vực Tân Cảng"] },
+            { word: "chobenthanh", hints: ["Biểu tượng lâu đời của Sài Gòn", "Có chiếc đồng hồ nổi tiếng ở cửa Nam", "Nằm ngay trung tâm Quận 1"] },
+            { word: "nhathoducba", hints: ["Kiến trúc Pháp bằng gạch đỏ cổ kính", "Nằm cạnh Bưu điện Thành phố", "Vị trí tại Công xã Paris"] },
+            { word: "dinhdoclap", hints: ["Nơi đánh dấu lịch sử ngày 30/4/1975", "Tên gọi khác là Dinh Thống Nhất", "Kiến trúc hình chữ CÁT"] },
+            { word: "bitexco", hints: ["Tòa nhà có hình búp sen", "Có sân đậu trực thăng ở tầng 52", "Biểu tượng hiện đại của Quận 1"] },
+            { word: "hoconrua", hints: ["Điểm hẹn ăn vặt nổi tiếng của giới trẻ", "Vòng xoay giữa Quận 1 và Quận 3", "Có tháp hình đóa hoa xòe nở"] },
+            { word: "phodibonguyenhue", hints: ["Con phố náo nhiệt nhất mỗi tối cuối tuần", "Nơi tổ chức đường hoa Tết hằng năm", "Nối từ UBND TP đến Bến Bạch Đằng"] },
+            { word: "suoitien", hints: ["Khu du lịch mang chủ đề lịch sử, truyền thuyết", "Nổi tiếng với biển Tiên Đồng Ngọc Nữ", "Nằm ở khu vực thành phố Thủ Đức"] },
+            { word: "damsen", hints: ["Công viên văn hóa có cả khu nước và khu khô", "Nằm ở Quận 11", "Điểm đến quen thuộc của thiếu nhi thành phố"] },
+            { word: "buudienthanhpho", hints: ["Công trình kiến trúc Pháp cổ đẹp bậc nhất TP", "Nằm cạnh Nhà thờ Đức Bà", "Nơi check-in cực hot của du khách"] }
         ];
         
         let currentItem = database[Math.floor(Math.random() * database.length)];
@@ -116,48 +116,56 @@
         }
 
         function toggleLeaderboard() { document.getElementById('leaderboard').classList.toggle('active'); }
-
         function resetScores() { if(confirm("Xóa toàn bộ BXH?")) { localStorage.removeItem('lativ_scores'); updateLeaderboardUI(); } }
 
         function updateLeaderboardUI() {
             const scores = JSON.parse(localStorage.getItem('lativ_scores') || '[]');
             document.getElementById('score-list').innerHTML = scores.map((s, i) => `
                 <div class="score-row"><span>${i+1}. ${s.name}</span><span style="color:var(--accent)">${s.tries} câu</span></div>
-            `).join('') || '<p style="opacity:0.2;text-align:center;font-size:0.7rem;">Chưa có kỷ lục</p>';
+            `).join('') || '<p style="opacity:0.2;text-align:center;font-size:0.7rem;">Chưa có dữ liệu</p>';
         }
 
         function handleAction() {
-            if(isGameOver || isProcessing || !inputField.value.trim()) return;
-
-            isProcessing = true;
+            if(isGameOver || isProcessing) return;
             const rawVal = inputField.value.trim();
-            // Chuẩn hóa chuỗi nhập vào: bỏ dấu, bỏ khoảng cách, bỏ gạch ngang
-            const val = rawVal.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '').replace(/-/g, '');
-            const targetClean = targetWord.replace(/-/g, '');
+            if(!rawVal) return;
+
+            // KIỂM TRA LỜI CHÀO/OK ĐỂ KHÔNG TÍNH LƯỢT
+            const skipWords = ["ok", "da", "vâng", "vậy hả", "chào", "hello", "hi", "uay", "wow"];
+            const cleanInput = rawVal.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
             
+            isProcessing = true;
             addMsg(rawVal, 'user');
             inputField.value = "";
-            tries++;
 
             setTimeout(() => {
-                if(val === targetClean || (val.length > 3 && targetClean.includes(val))) {
-                    playSFX('correct');
-                    addMsg(`CHÍNH XÁC! Địa danh là "${targetWord.toUpperCase()}". Bạn giải được sau ${tries} lượt.`, 'ai');
-                    let scores = JSON.parse(localStorage.getItem('lativ_scores') || '[]');
-                    scores.push({ name: playerName, tries });
-                    scores.sort((a,b) => a.tries - b.tries);
-                    localStorage.setItem('lativ_scores', JSON.stringify(scores.slice(0, 10)));
-                    isGameOver = true;
-                    updateLeaderboardUI();
-                    setTimeout(toggleLeaderboard, 1200);
-                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                if(skipWords.some(w => cleanInput.includes(w)) && !isGameOver) {
+                    addMsg("Bạn sẵn sàng chưa? Hãy nhập địa danh bạn đoán nhé!", "ai");
                 } else {
-                    playSFX('wrong');
-                    if(tries >= 10) {
-                        addMsg(`HẾT LƯỢT. Địa danh bí mật là: ${targetWord.toUpperCase()}`, 'ai');
+                    // Xử lý đoán thật sự
+                    tries++;
+                    const val = cleanInput.replace(/\s+/g, '').replace(/-/g, '');
+                    const targetClean = targetWord.replace(/-/g, '');
+
+                    if(val === targetClean || (val.length > 3 && targetClean.includes(val))) {
+                        playSFX('correct');
+                        addMsg(`CHÍNH XÁC! Đó là "${targetWord.toUpperCase()}". Bạn thắng sau ${tries} lượt!`, 'ai');
+                        let scores = JSON.parse(localStorage.getItem('lativ_scores') || '[]');
+                        scores.push({ name: playerName, tries });
+                        scores.sort((a,b) => a.tries - b.tries);
+                        localStorage.setItem('lativ_scores', JSON.stringify(scores.slice(0, 10)));
                         isGameOver = true;
+                        updateLeaderboardUI();
+                        setTimeout(toggleLeaderboard, 1200);
+                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
                     } else {
-                        addMsg(`Gợi ý: ${currentItem.hints[(tries-1) % currentItem.hints.length]}`, 'ai');
+                        playSFX('wrong');
+                        if(tries >= 11) {
+                            addMsg(`HẾT LƯỢT! Địa danh bí mật là: ${targetWord.toUpperCase()}.`, 'ai');
+                            isGameOver = true;
+                        } else {
+                            addMsg(`Gợi ý: ${currentItem.hints[(tries-1) % currentItem.hints.length]}`, 'ai');
+                        }
                     }
                 }
                 isProcessing = false;
