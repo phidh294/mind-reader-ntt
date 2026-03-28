@@ -3,63 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LATIV | CITY MASTER v7</title>
+    <title>LATIV | CITY MASTER v9</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
         :root { --accent: #00f2ff; --bg: #000; --card: #111; }
-        body { margin: 0; background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+        body { margin: 0; background: var(--bg); color: #fff; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        
         .app { width: 100%; max-width: 500px; display: flex; flex-direction: column; padding: 20px; position: relative; }
-        .chat-box { flex: 1; background: var(--card); border: 1px solid var(--accent); border-radius: 20px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(0, 242, 255, 0.1); }
-        .msg { padding: 12px 18px; border-radius: 18px; max-width: 85%; font-size: 0.95rem; line-height: 1.4; animation: slide 0.3s ease; }
+        .logo { font-size: 1.8rem; font-weight: 700; color: var(--accent); text-align: center; letter-spacing: 5px; margin-bottom: 15px; text-shadow: 0 0 10px var(--accent); }
+        
+        .chat-box { flex: 1; background: var(--card); border: 1px solid #222; border-radius: 20px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; border: 1px solid var(--accent); }
+        .msg { padding: 12px 18px; border-radius: 18px; max-width: 85%; font-size: 0.9rem; line-height: 1.4; animation: slideIn 0.3s ease; }
         .ai { background: #1a1a1a; align-self: flex-start; border: 1px solid #333; }
         .user { background: var(--accent); color: #000; align-self: flex-end; font-weight: bold; }
-        .input-area { display: flex; gap: 10px; background: #151515; padding: 10px; border-radius: 15px; border: 1px solid #333; }
+
+        .input-area { display: flex; gap: 8px; background: #151515; padding: 10px; border-radius: 15px; border: 1px solid #333; }
         input { flex: 1; background: transparent; border: none; color: #fff; outline: none; padding: 5px; }
         button { background: var(--accent); border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        button:disabled { opacity: 0.5; }
-        .rank-box { position: absolute; top: 10px; right: 10px; width: 180px; background: rgba(0,0,0,0.9); border: 1px solid var(--accent); padding: 10px; border-radius: 10px; font-size: 0.75rem; z-index: 100; display: none; }
-        @keyframes slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .rank-btn { position: absolute; top: 25px; right: 20px; background: none; border: 1px solid var(--accent); color: var(--accent); padding: 5px 10px; border-radius: 5px; font-size: 0.7rem; cursor: pointer; }
+        .rank-panel { position: absolute; top: 65px; right: 20px; width: 180px; background: rgba(0,0,0,0.9); border: 1px solid var(--accent); padding: 10px; border-radius: 12px; font-size: 0.75rem; z-index: 100; display: none; }
+        
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .modal { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
+
     <audio id="bg-music" loop src="bg-music.mp3"></audio>
 
     <div id="login-modal" class="modal">
-        <div style="text-align: center; width: 85%;">
-            <h1 style="color:var(--accent); letter-spacing: 5px; margin-bottom: 0;">LATIV × NTT</h1>
-            <p style="font-size: 0.7rem; opacity: 0.5; margin-bottom: 25px;">CITY MASTER EDITION</p>
-            <input type="text" id="player-name" placeholder="Nhập tên của bạn..." style="width: 100%; padding: 15px; background: #111; border: 1px solid #333; color: #fff; text-align: center; border-radius: 10px; margin-bottom: 15px;">
-            <button onclick="initGame()" style="width: 100%; padding: 15px;">KHÁM PHÁ NGAY</button>
+        <div style="text-align: center; width: 80%;">
+            <h1 style="color:var(--accent); letter-spacing: 5px;">LATIV</h1>
+            <p style="font-size: 0.6rem; opacity: 0.5; margin-bottom: 20px;">CITY MASTER × JETLAG</p>
+            <input type="text" id="p-name" placeholder="NHẬP TÊN CỦA BẠN..." style="width: 100%; padding: 15px; background: #111; border: 1px solid #333; color: #fff; text-align: center; border-radius: 10px; margin-bottom: 15px;">
+            <button onclick="initGame()" style="width: 100%; padding: 15px;">VÀO TRẬN</button>
         </div>
     </div>
 
-    <div id="rank-panel" class="rank-box">
-        <div style="color:var(--accent); font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid #333; display: flex; justify-content: space-between;">
-            <span>TOP GLOBAL</span>
-            <span onclick="toggleRank()" style="cursor:pointer;">×</span>
-        </div>
-        <div id="rank-list">Chưa có dữ liệu</div>
+    <div id="rank-panel" class="rank-panel">
+        <div style="color:var(--accent); font-weight: bold; border-bottom: 1px solid #333; margin-bottom: 8px; padding-bottom: 5px;">TOP AGENTS</div>
+        <div id="rank-list">Loading...</div>
     </div>
 
     <div class="app">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <span style="color:var(--accent); font-weight: bold; letter-spacing: 2px;">CITY MASTER</span>
-            <button onclick="toggleRank()" style="padding: 5px 12px; font-size: 0.7rem; background:transparent; border:1px solid var(--accent); color:var(--accent);">RANKING</button>
-        </div>
+        <button class="rank-btn" onclick="toggleRank()">RANK</button>
+        <div class="logo">LATIV</div>
         <div class="chat-box" id="chat"></div>
         <div class="input-area">
-            <input type="text" id="user-input" placeholder="Dự đoán (không dấu)..." autocomplete="off">
-            <button id="send-btn" onclick="play()">GỬI</button>
+            <input type="text" id="user-input" placeholder="Dự đoán địa danh..." autocomplete="off">
+            <button id="send-btn" onclick="handlePlay()">GỬI</button>
         </div>
-        <p style="font-size: 0.6rem; text-align: center; opacity: 0.3; margin-top: 10px;">Brand by **jetlag** | LATIV Club</p>
+        <div style="text-align: center; font-size: 0.5rem; opacity: 0.3; margin-top: 10px; letter-spacing: 2px;">BRAND BY **JETLAG**</div>
     </div>
 
     <script>
-        // --- 1. FIREBASE CONFIG ---
-        // Phi hãy dán mã thật từ Firebase vào đây. Nếu chưa có, nó sẽ tự dùng LocalStorage.
+        // --- [BẮT ĐẦU VÙNG CẤU HÌNH FIREBASE] ---
+        // Phi dán thông tin từ Firebase Console vào đây
         const firebaseConfig = {
             apiKey: "AIzaSyBvQyHAfaLGWYcmuiwQWYzxcK7clPq-Ag4",
   authDomain: "lativ-city-master.firebaseapp.com",
@@ -70,48 +76,98 @@
   appId: "1:577511383122:web:5332bb70d7857026aeff8b"
         };
         
-        const isFirebaseReady = firebaseConfig.apiKey !== "YOUR_API_KEY";
-        if(isFirebaseReady) {
+        // Tự động kiểm tra xem Phi đã dán key chưa
+        const isCloudEnabled = firebaseConfig.apiKey.includes("AIza"); 
+        if(isCloudEnabled) {
             firebase.initializeApp(firebaseConfig);
         }
+        // --- [KẾT THÚC VÙNG CẤU HÌNH FIREBASE] ---
 
-        // --- 2. GAME DATA (Đã mở rộng để không lặp) ---
         const locations = [
-            { word: "crescentmall", keys: ["crescent", "mall", "anhsao", "quan7"], hints: ["Ở Quận 7", "Nổi tiếng với Cầu Ánh Sao", "Trung tâm thương mại lớn cạnh hồ"] },
-            { word: "landmark81", keys: ["landmark", "81", "binhthanh", "tre"], hints: ["Tòa nhà cao nhất Việt Nam", "Lấy cảm hứng từ bó tre", "Nằm tại khu Tân Cảng, Bình Thạnh"] },
-            { word: "chobenthanh", keys: ["benthanh", "quan1", "bieutuong"], hints: ["Biểu tượng lâu đời nhất Sài Gòn", "Có 4 cửa chính hướng ra trung tâm Q1", "Nơi check-in nổi tiếng nhất thành phố"] },
-            { word: "suoitien", keys: ["suoitien", "thuduc", "tien"], hints: ["Khu du lịch ở Thủ Đức", "Nổi tiếng với biển Tiên Đồng", "Chủ đề về truyền thuyết dân tộc"] },
-            { word: "damsen", keys: ["damsen", "quan11", "nuoc"], hints: ["Công viên tại Quận 11", "Có vòng quay khổng lồ và công viên nước", "Điểm đến yêu thích của thiếu nhi"] },
-            { word: "dinhdoclap", keys: ["dinh", "thongnhat", "doclap"], hints: ["Di tích lịch sử tại Quận 1", "Nơi đánh dấu sự kiện 30/4/1975", "Kiến trúc hình chữ CÁT Hán tự"] }
+            { word: "crescentmall", keys: ["crescent", "mall", "anhsao", "quan7"], hints: ["Nằm tại Quận 7", "Nổi tiếng với Cầu Ánh Sao", "Cạnh hồ Bán Nguyệt"] },
+            { word: "landmark81", keys: ["landmark", "81", "binhthanh", "tre"], hints: ["Tòa nhà cao nhất Việt Nam", "Lấy cảm hứng từ bó tre", "Tại khu Tân Cảng, Bình Thạnh"] },
+            { word: "chobenthanh", keys: ["benthanh", "quan1", "bieutuong"], hints: ["Biểu tượng lâu đời của Sài Gòn", "Có 4 cửa chính hướng ra các ngả đường Q1", "Điểm du lịch nổi tiếng"] },
+            { word: "suoitien", keys: ["suoitien", "thuduc", "tien"], hints: ["Khu du lịch ở Thủ Đức", "Có biển Tiên Đồng Ngọc Nữ", "Chủ đề thần thoại dân tộc"] },
+            { word: "damsen", keys: ["damsen", "quan11", "nuoc"], hints: ["Ở Quận 11", "Có công viên nước và vườn bách thú", "Vòng quay khổng lồ"] }
         ];
 
-        let gameQueue = [];
-        let currentIdx = 0;
+        let queue = [];
+        let cursor = 0;
         let tries = 0;
-        let hintIdx = 0; // Biến riêng để không lặp gợi ý khi gõ OK
-        let playerName = "";
-        let isProcessing = false;
+        let pName = "";
+        let isLocked = false;
 
         function clean(s) {
             return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/\s+/g, "");
         }
 
-        function shuffleQueue() {
-            let lastWord = gameQueue.length > 0 ? gameQueue[currentIdx]?.word : null;
-            gameQueue = [...locations].sort(() => Math.random() - 0.5);
-            // Đảm bảo địa danh đầu tiên của queue mới không trùng địa danh vừa chơi xong
-            if(gameQueue[0].word === lastWord) gameQueue.push(gameQueue.shift());
-            currentIdx = 0;
+        function shuffle() {
+            queue = [...locations].sort(() => Math.random() - 0.5);
+            cursor = 0;
         }
 
         function initGame() {
-            playerName = document.getElementById('player-name').value.trim();
-            if(!playerName || playerName.toLowerCase() === 'ok') return alert("Vui lòng nhập tên thật!");
+            pName = document.getElementById('p-name').value.trim();
+            if(!pName) return alert("Agent cần một danh tính!");
             document.getElementById('login-modal').style.display = 'none';
             document.getElementById('bg-music').play().catch(()=>{});
-            shuffleQueue();
-            addMsg("ai", `Chào **${playerName}**! Hãy giải mã địa danh đầu tiên. Gõ "OK" nếu cần gợi ý.`);
+            shuffle();
+            addMsg("ai", `Chào **${pName}**. Hãy giải mã địa danh đầu tiên. Gõ 'OK' để lấy thêm gợi ý.`);
             updateRankUI();
+        }
+
+        async function handlePlay() {
+            if(isLocked) return; // Chống nhấn 2 lần
+            
+            const ui = document.getElementById('user-input');
+            const btn = document.getElementById('send-btn');
+            const val = ui.value.trim();
+            if(!val) return;
+
+            isLocked = true;
+            btn.disabled = true;
+            addMsg("user", val);
+            ui.value = "";
+
+            // Xử lý AI suy nghĩ
+            setTimeout(() => {
+                const ans = clean(val);
+                const current = queue[cursor];
+
+                if(ans === "ok") {
+                    addMsg("ai", `Gợi ý: ${current.hints[tries % 3]}`);
+                } else {
+                    tries++;
+                    const isMatch = current.keys.some(k => ans.includes(k)) || ans === current.word;
+
+                    if(isMatch) {
+                        addMsg("ai", `🎉 **TARGET ACQUIRED!** Đó chính là ${current.word.toUpperCase()}. Bạn giải được sau ${tries} lượt.`);
+                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                        saveScore(tries);
+                        
+                        setTimeout(() => {
+                            tries = 0; cursor++;
+                            if(cursor >= queue.length) shuffle();
+                            addMsg("ai", "Bắt đầu nhiệm vụ tiếp theo...");
+                        }, 2500);
+                    } else {
+                        // TỰ ĐỘNG GỢI Ý KHI SAI (Tính năng Phi yêu cầu)
+                        const nextHint = current.hints[tries % current.hints.length];
+                        addMsg("ai", `❌ Không khớp! (Lượt ${tries}). <br><b>Gợi ý:</b> ${nextHint}`);
+                    }
+                }
+                isLocked = false;
+                btn.disabled = false;
+            }, 500);
+        }
+
+        function addMsg(type, txt) {
+            const chat = document.getElementById('chat');
+            const div = document.createElement('div');
+            div.className = `msg ${type}`;
+            div.innerHTML = txt;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
         }
 
         function toggleRank() {
@@ -119,96 +175,42 @@
             p.style.display = p.style.display === 'block' ? 'none' : 'block';
         }
 
-        async function play() {
-            if(isProcessing) return;
-            const input = document.getElementById('user-input');
-            const btn = document.getElementById('send-btn');
-            const val = input.value.trim();
-            if(!val) return;
-
-            isProcessing = true;
-            btn.disabled = true;
-            addMsg("user", val);
-            input.value = "";
-
-            setTimeout(() => {
-                const userAns = clean(val);
-                const current = gameQueue[currentIdx];
-
-                if(userAns === "ok") {
-                    addMsg("ai", `Gợi ý cho bạn: ${current.hints[hintIdx % 3]}`);
-                    hintIdx++; // Tăng index gợi ý riêng biệt
-                } else {
-                    tries++;
-                    const isCorrect = current.keys.some(k => userAns.includes(k)) || userAns === current.word;
-
-                    if(isCorrect) {
-                        addMsg("ai", `🎉 **CHÍNH XÁC!** Đó là ${current.word.toUpperCase()}. Bạn giải được sau ${tries} lượt.`);
-                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-                        saveScore(tries);
-                        
-                        setTimeout(() => {
-                            tries = 0; hintIdx = 0;
-                            currentIdx++;
-                            if(currentIdx >= gameQueue.length) shuffleQueue();
-                            addMsg("ai", "Tiếp tục địa danh tiếp theo nào...");
-                        }, 2500);
-                    } else {
-                        addMsg("ai", `Tiếc quá, chưa đúng! (Lượt ${tries}/10).`);
-                    }
-                }
-                isProcessing = false;
-                btn.disabled = false;
-            }, 400);
-        }
-
-        function addMsg(type, text) {
-            const chat = document.getElementById('chat');
-            const div = document.createElement('div');
-            div.className = `msg ${type}`;
-            div.innerHTML = text;
-            chat.appendChild(div);
-            chat.scrollTop = chat.scrollHeight;
-        }
-
-        // --- 3. CLOUD & LOCAL RANKING ---
+        // --- HỆ THỐNG LƯU TRỮ (GLOBAL + LOCAL) ---
         function saveScore(s) {
-            const scoreData = { name: playerName, score: s, date: new Date().toLocaleDateString() };
-            
-            // Lưu Global nếu có Firebase
-            if(isFirebaseReady) {
-                const ref = firebase.database().ref('lativ_scores/' + clean(playerName));
-                ref.once('value').then(snap => {
-                    if(!snap.val() || s < snap.val().score) ref.set(scoreData);
+            const data = { name: pName, score: s, date: new Date().toLocaleDateString() };
+            if(isCloudEnabled) {
+                firebase.database().ref('lativ_scores/' + clean(pName)).once('value').then(snap => {
+                    if(!snap.val() || s < snap.val().score) {
+                        firebase.database().ref('lativ_scores/' + clean(pName)).set(data);
+                    }
                 });
             }
-            
-            // Lưu Local dự phòng
-            let localScores = JSON.parse(localStorage.getItem('lativ_local_rank') || "[]");
-            localScores.push(scoreData);
-            localScores.sort((a,b) => a.score - b.score);
-            localStorage.setItem('lativ_local_rank', JSON.stringify(localScores.slice(0,10)));
+            // Luôn lưu local dự phòng
+            let local = JSON.parse(localStorage.getItem('lativ_rank') || "[]");
+            local.push(data);
+            local.sort((a,b) => a.score - b.score);
+            localStorage.setItem('lativ_rank', JSON.stringify(local.slice(0,10)));
             updateRankUI();
         }
 
         function updateRankUI() {
             const list = document.getElementById('rank-list');
-            if(isFirebaseReady) {
+            if(isCloudEnabled) {
                 firebase.database().ref('lativ_scores').orderByChild('score').limitToFirst(10).on('value', snap => {
-                    let html = "";
-                    snap.forEach(child => {
-                        const d = child.val();
-                        html += `<div style="margin-bottom:5px;">• ${d.name}: <b style="color:var(--accent)">${d.score}</b></div>`;
+                    let h = "";
+                    snap.forEach(c => {
+                        const d = c.val();
+                        h += `<div style="margin-bottom:5px;">• ${d.name}: <b>${d.score}</b></div>`;
                     });
-                    list.innerHTML = html || "Chưa có kỷ lục";
+                    list.innerHTML = h || "Chưa có kỷ lục";
                 });
             } else {
-                const local = JSON.parse(localStorage.getItem('lativ_local_rank') || "[]");
-                list.innerHTML = local.map(d => `<div style="margin-bottom:5px;">• ${d.name}: <b style="color:var(--accent)">${d.score}</b></div>`).join('') || "Chưa có kỷ lục";
+                const local = JSON.parse(localStorage.getItem('lativ_rank') || "[]");
+                list.innerHTML = local.map(d => `<div>• ${d.name}: <b>${d.score}</b></div>`).join('') || "Chưa có kỷ lục";
             }
         }
 
-        document.getElementById('user-input').onkeydown = (e) => { if(e.key === 'Enter') play(); };
+        document.getElementById('user-input').onkeydown = (e) => { if(e.key === 'Enter') handlePlay(); };
     </script>
 </body>
 </html>
