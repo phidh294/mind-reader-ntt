@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LATIV | CITY EXPLORER</title>
+    <title>LATIV | HCMC EXPLORER</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --bg: #000; --accent: #00f2ff; --card: #111; --text: #fff; }
         body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
         .app-container { width: 100%; max-width: 600px; padding: 20px; display: flex; flex-direction: column; position: relative; }
-        .logo { font-size: 2.2rem; font-weight: bold; color: var(--accent); text-align: center; margin-bottom: 5px; text-shadow: 0 0 15px var(--accent); }
+        .logo { font-size: 2.5rem; font-weight: bold; color: var(--accent); text-align: center; margin-bottom: 5px; text-shadow: 0 0 15px var(--accent); }
         .chat-window { background: var(--card); border: 1px solid #222; border-radius: 20px; flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
         #chat-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
         .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 0.95rem; animation: slideIn 0.3s ease; line-height: 1.4; }
@@ -17,15 +17,16 @@
         .user-msg { background: var(--accent); color: #000; align-self: flex-end; font-weight: 600; }
         .input-area { display: flex; gap: 10px; background: #111; padding: 10px; border-radius: 15px; border: 1px solid #222; }
         input { flex: 1; background: transparent; border: none; color: #fff; padding: 10px; outline: none; font-size: 1rem; }
-        button { background: var(--accent); color: #000; border: none; padding: 10px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        button { background: var(--accent); color: #000; border: none; padding: 10px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         
-        .leaderboard { position: absolute; top: 80px; right: -280px; width: 240px; background: #080808; border: 1px solid var(--accent); border-radius: 15px; padding: 15px; transition: 0.5s; z-index: 50; }
+        /* Leaderboard */
+        .leaderboard { position: absolute; top: 80px; right: -280px; width: 240px; background: #080808; border: 1px solid var(--accent); border-radius: 15px; padding: 15px; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 50; box-shadow: 0 0 20px rgba(0, 242, 255, 0.3); }
         .leaderboard.active { right: 20px; }
         .score-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; border-bottom: 1px dashed #222; padding-bottom: 5px; }
-        .btn-top { position: absolute; top: 20px; padding: 6px 12px; font-size: 0.7rem; cursor: pointer; border-radius: 8px; border: 1px solid #333; }
+        .btn-top { position: absolute; top: 20px; padding: 8px 15px; font-size: 0.7rem; cursor: pointer; border-radius: 8px; border: 1px solid #333; font-weight: bold; }
 
         .modal { position: fixed; top:0; left:0; width:100%; height:100%; background: #000; z-index:100; display: flex; align-items: center; justify-content: center; }
-        .modal-box { border: 1px solid var(--accent); padding: 40px; border-radius: 25px; text-align: center; background: #080808; width: 90%; max-width: 400px; }
+        .modal-box { border: 1px solid var(--accent); padding: 40px; border-radius: 25px; text-align: center; background: #080808; width: 90%; max-width: 400px; box-shadow: 0 0 30px var(--accent); }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -36,32 +37,33 @@
     <div id="login-modal" class="modal">
         <div class="modal-box">
             <h1 style="color:var(--accent); margin:0;">LATIV</h1>
-            <p style="opacity: 0.5; font-size: 0.8rem; margin-top: 5px;">GIẢI MÃ ĐỊA DANH SÀI GÒN</p>
-            <input type="text" id="player-name" placeholder="Tên của bạn..." style="width: 100%; margin: 25px 0; background: #1a1a1a; border: 1px solid #333; padding: 15px; border-radius: 10px; color: #fff;">
-            <button onclick="startGame()" style="width: 100%; padding: 15px;">KHÁM PHÁ NGAY</button>
+            <p style="opacity: 0.6; font-size: 0.8rem; margin-top: 5px; letter-spacing: 2px;">MIND READER: TPHCM EDITION</p>
+            <input type="text" id="player-name" placeholder="Nhập tên của bạn..." style="width: 100%; margin: 25px 0; background: #1a1a1a; border: 1px solid #333; padding: 15px; border-radius: 10px; color: #fff; text-align: center;">
+            <button onclick="startGame()" style="width: 100%; padding: 15px;">VÀO TRÒ CHƠI</button>
         </div>
     </div>
 
     <div class="app-container">
         <button class="btn-top" onclick="toggleLeaderboard()" style="right: 20px; background: var(--accent); color: #000;">BXH</button>
-        <button class="btn-top" onclick="resetScores()" style="left: 20px; background: #222; color: #555;">RESET</button>
+        <button class="btn-top" onclick="resetScores()" style="left: 20px; background: #222; color: #666; border: none;">RESET</button>
         
         <div id="leaderboard" class="leaderboard">
-            <h3 style="color:var(--accent); text-align:center; margin-top:0;">TOP KHÁM PHÁ</h3>
+            <h3 style="color:var(--accent); text-align:center; margin-top:0; letter-spacing: 2px;">TOP CAO THỦ</h3>
             <div id="score-list"></div>
+            <p style="font-size: 0.6rem; text-align: center; margin-top: 10px; opacity: 0.3;">Sắp xếp theo số lượt đoán ít nhất</p>
         </div>
 
-        <div class="logo">LATIV <span>PROJECT</span></div>
-        <div style="text-align: center; color: var(--accent); font-size: 0.7rem; margin-bottom: 15px; letter-spacing: 2px;">CITY EXPLORER - HCMC EDITION</div>
+        <div class="logo">LATIV</div>
+        <div style="text-align: center; color: var(--accent); font-size: 0.7rem; margin-bottom: 15px; letter-spacing: 3px; opacity: 0.8;">HCMC LANDMARK DECODER</div>
 
         <div class="chat-window">
             <div id="chat-content">
-                <div class="msg ai-msg">Chào bạn! Hãy đoán các địa danh nổi tiếng của TP.HCM. Cố gắng giải mã với số câu ít nhất nhé!</div>
+                <div class="msg ai-msg">Chào bạn! Mình đang giữ từ khóa về một địa danh nổi tiếng tại TP.HCM. Hãy giải mã với số câu ít nhất để lên TOP nhé!</div>
             </div>
         </div>
 
         <div class="input-area">
-            <input type="text" id="user-input" placeholder="Dự đoán của bạn...">
+            <input type="text" id="user-input" placeholder="Dự đoán của bạn (không dấu)...">
             <button id="send-btn">GỬI</button>
         </div>
         
@@ -70,13 +72,16 @@
 
     <script>
         const database = [
-            { word: "landmark81", hints: ["Tòa nhà cao nhất Việt Nam", "Nằm ở khu vực Tân Cảng", "Có hình dáng bó tre"] },
-            { word: "cho-ben-thanh", hints: ["Biểu tượng lâu đời của Sài Gòn", "Có 4 cửa chính: Đông, Tây, Nam, Bắc", "Nằm ngay trung tâm Quận 1"] },
-            { word: "nha-tho-duc-ba", hints: ["Công trình kiến trúc Pháp cổ điển", "Nằm cạnh Bưu điện Thành phố", "Đang trong quá trình trùng tu"] },
-            { word: "dinh-doc-lap", hints: ["Nơi đánh dấu sự kiện 30/4/1975", "Kiến trúc hình chữ CÁT", "Tên gọi khác là Dinh Thống Nhất"] },
-            { word: "bitexco", hints: ["Tòa nhà hình búp sen", "Có sân đậu trực thăng lơ lửng", "Từng là biểu tượng cao nhất thành phố"] },
-            { word: "ho-con-rua", hints: ["Điểm hẹn hò, ăn vặt nổi tiếng", "Nằm ở vòng xoay giữa Quận 1 và Quận 3", "Có tháp hình đóa hoa xòe nở"] },
-            { word: "pho-di-bo-nguyen-hue", hints: ["Con đường náo nhiệt nhất mỗi tối", "Nối từ UBND TP đến bến Bạch Đằng", "Nơi tổ chức đường hoa Tết mỗi năm"] }
+            { word: "landmark81", hints: ["Tòa nhà cao nhất Việt Nam hiện nay", "Nằm tại khu vực Tân Cảng", "Có kiến trúc lấy cảm hứng từ bó tre truyền thống"] },
+            { word: "chobenthanh", hints: ["Biểu tượng văn hóa lâu đời nhất Sài Gòn", "Có 4 cửa chính nhìn ra các hướng trung tâm Quận 1", "Nổi tiếng với chiếc đồng hồ ở cửa Nam"] },
+            { word: "nhathoducba", hints: ["Công trình kiến trúc Pháp cổ kính bằng gạch đỏ", "Nằm ngay trung tâm Công xã Paris", "Cạnh bên là Bưu điện Thành phố"] },
+            { word: "dinhdoclap", hints: ["Nơi đánh dấu sự kiện lịch sử 30/4/1975", "Tên gọi khác là Dinh Thống Nhất", "Công trình có kiến trúc hình chữ CÁT"] },
+            { word: "bitexco", hints: ["Từng là tòa nhà cao nhất thành phố trước Landmark 81", "Thiết kế hình búp sen hé nở", "Có sân đậu trực thăng ở tầng 52"] },
+            { word: "hoconrua", hints: ["Điểm ăn vặt và hẹn hò nổi tiếng của giới trẻ", "Nằm ở nút giao Quận 1 và Quận 3", "Có tháp bê tông hình bông hoa xòe nở giữa hồ"] },
+            { word: "phodibonguyenhue", hints: ["Con phố náo nhiệt nhất vào mỗi tối cuối tuần", "Nối thẳng từ UBND Thành phố ra Bến Bạch Đằng", "Nơi tổ chức đường hoa lớn nhất mỗi dịp Tết"] },
+            { word: "suoitien", hints: ["Khu du lịch tâm linh nổi tiếng ở TP.HCM", "Gắn liền với các truyền thuyết dân tộc", "Có biển Tiên Đồng Ngọc Nữ"] },
+            { word: "dam-sen", hints: ["Công viên văn hóa lâu đời ở Quận 11", "Có cả khu công viên nước và công viên khô", "Nổi tiếng với các trò chơi cảm giác mạnh"] },
+            { word: "buudienthanhpho", hints: ["Một trong những bưu điện đẹp nhất Đông Nam Á", "Nằm cạnh Nhà thờ Đức Bà", "Kiến trúc mang đậm phong cách châu Âu cổ điển"] }
         ];
         
         let currentItem = database[Math.floor(Math.random() * database.length)];
@@ -112,13 +117,13 @@
 
         function toggleLeaderboard() { document.getElementById('leaderboard').classList.toggle('active'); }
 
-        function resetScores() { if(confirm("Xóa BXH?")) { localStorage.removeItem('lativ_scores'); updateLeaderboardUI(); } }
+        function resetScores() { if(confirm("Xóa toàn bộ BXH?")) { localStorage.removeItem('lativ_scores'); updateLeaderboardUI(); } }
 
         function updateLeaderboardUI() {
             const scores = JSON.parse(localStorage.getItem('lativ_scores') || '[]');
             document.getElementById('score-list').innerHTML = scores.map((s, i) => `
-                <div class="score-row"><span>${i+1}. ${s.name}</span><span style="color:var(--accent)">${s.tries} lượt</span></div>
-            `).join('') || '<p style="opacity:0.2;text-align:center">Trống</p>';
+                <div class="score-row"><span>${i+1}. ${s.name}</span><span style="color:var(--accent)">${s.tries} câu</span></div>
+            `).join('') || '<p style="opacity:0.2;text-align:center;font-size:0.7rem;">Chưa có kỷ lục</p>';
         }
 
         function handleAction() {
@@ -126,6 +131,7 @@
 
             isProcessing = true;
             const rawVal = inputField.value.trim();
+            // Chuẩn hóa chuỗi nhập vào: bỏ dấu, bỏ khoảng cách, bỏ gạch ngang
             const val = rawVal.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '').replace(/-/g, '');
             const targetClean = targetWord.replace(/-/g, '');
             
@@ -143,7 +149,7 @@
                     localStorage.setItem('lativ_scores', JSON.stringify(scores.slice(0, 10)));
                     isGameOver = true;
                     updateLeaderboardUI();
-                    setTimeout(toggleLeaderboard, 1000);
+                    setTimeout(toggleLeaderboard, 1200);
                     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
                 } else {
                     playSFX('wrong');
