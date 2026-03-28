@@ -13,28 +13,29 @@
 
         body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; height: 100vh; overflow: hidden; transition: 0.3s; }
         .app-container { width: 100%; max-width: 600px; padding: 20px; display: flex; flex-direction: column; position: relative; }
-        .logo { font-size: 2.5rem; font-weight: bold; color: var(--accent); text-align: center; margin-bottom: 5px; text-shadow: 0 0 10px var(--accent); letter-spacing: 5px; }
-        .chat-window { background: var(--card); border: 1px solid rgba(128,128,128,0.2); border-radius: 20px; flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        #chat-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 0.95rem; animation: slideIn 0.3s ease; line-height: 1.4; }
+        .logo { font-size: 2.5rem; font-weight: bold; color: var(--accent); text-align: center; margin-bottom: 20px; text-shadow: 0 0 10px var(--accent); letter-spacing: 5px; }
+        
+        .chat-window { background: var(--card); border: 1px solid rgba(128,128,128,0.2); border-radius: 20px; flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 20px; }
+        #chat-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+        
+        .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 0.95rem; line-height: 1.4; animation: slideIn 0.3s ease; }
         .ai-msg { background: var(--msg-ai); align-self: flex-start; border: 1px solid rgba(128,128,128,0.1); }
         .user-msg { background: var(--accent); color: #fff; align-self: flex-end; font-weight: 600; }
         body:not(.theme-white):not(.theme-blue):not(.theme-pink) .user-msg { color: #000; }
 
         .input-area { display: flex; gap: 10px; background: var(--card); padding: 10px; border-radius: 15px; border: 1px solid rgba(128,128,128,0.2); }
-        input { flex: 1; background: transparent; border: none; color: var(--text); padding: 10px; outline: none; font-size: 1rem; }
-        button { background: var(--accent); color: #fff; border: none; padding: 10px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        body:not(.theme-white):not(.theme-blue):not(.theme-pink) button { color: #000; }
+        input { flex: 1; background: transparent; border: none; color: var(--text); padding: 10px; outline: none; }
         
+        .theme-bar { display: flex; justify-content: center; gap: 15px; margin-top: 15px; padding: 10px; }
+        .dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(128,128,128,0.5); transition: 0.2s; }
+        .dot:hover { transform: scale(1.2); }
+
+        .btn-top { position: absolute; top: 20px; padding: 8px 15px; font-size: 0.7rem; cursor: pointer; border-radius: 8px; border: 1px solid rgba(128,128,128,0.3); font-weight: bold; }
         .leaderboard { position: absolute; top: 80px; right: -280px; width: 240px; background: var(--card); border: 1px solid var(--accent); border-radius: 15px; padding: 15px; transition: 0.5s; z-index: 50; }
         .leaderboard.active { right: 20px; }
-        .score-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; border-bottom: 1px dashed rgba(128,128,128,0.3); padding-bottom: 5px; }
-        .btn-top { position: absolute; top: 20px; padding: 8px 15px; font-size: 0.7rem; cursor: pointer; border-radius: 8px; border: 1px solid rgba(128,128,128,0.3); font-weight: bold; }
-        .theme-selector { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; }
-        .dot { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid #fff; }
-
+        
         .modal { position: fixed; top:0; left:0; width:100%; height:100%; background: #000; z-index:100; display: flex; align-items: center; justify-content: center; }
-        .modal-box { border: 1px solid var(--accent); padding: 40px; border-radius: 25px; text-align: center; background: #080808; width: 90%; max-width: 400px; }
+        .modal-box { border: 1px solid var(--accent); padding: 40px; border-radius: 25px; text-align: center; background: #080808; width: 90%; max-width: 400px; color: #fff; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -42,100 +43,93 @@
     <div id="login-modal" class="modal">
         <div class="modal-box">
             <h1 style="color:var(--accent); margin:0;">LATIV</h1>
-            <p style="opacity: 0.6; color: #fff; font-size: 0.7rem; margin-top: 5px;">MIND READER: TPHCM EDITION</p>
-            <input type="text" id="player-name" placeholder="Tên bạn là gì?" style="width: 100%; margin: 25px 0; background: #1a1a1a; border: 1px solid #333; padding: 15px; border-radius: 10px; color: #fff; text-align: center;">
-            <button onclick="startGame()" style="width: 100%; padding: 15px;">BẮT ĐẦU</button>
+            <p style="opacity: 0.6; font-size: 0.7rem;">MIND READER: TPHCM EDITION</p>
+            <input type="text" id="player-name" placeholder="Tên bạn..." style="width: 100%; margin: 20px 0; padding: 15px; border-radius: 10px; border: 1px solid #333; background: #1a1a1a; color: #fff; text-align: center;">
+            <button onclick="startGame()" style="width: 100%; padding: 15px; background: var(--accent); border: none; border-radius: 10px; font-weight: bold; cursor: pointer; color: #000;">BẮT ĐẦU</button>
         </div>
     </div>
 
     <div class="app-container">
-        <div class="theme-selector">
-            <div class="dot" style="background:#000" onclick="setTheme('')"></div>
-            <div class="dot" style="background:#fff" onclick="setTheme('theme-white')"></div>
-            <div class="dot" style="background:#bbdefb" onclick="setTheme('theme-blue')"></div>
-            <div class="dot" style="background:#f8bbd0" onclick="setTheme('theme-pink')"></div>
-        </div>
-
-        <button class="btn-top" onclick="toggleLeaderboard()" style="right: 20px; background: var(--accent); border:none;">BXH</button>
-        <button class="btn-top" onclick="resetScores()" style="left: 20px; background: transparent; color: gray;">RESET</button>
-        
-        <div id="leaderboard" class="leaderboard">
-            <h3 style="color:var(--accent); text-align:center; margin-top:0;">TOP CAO THỦ</h3>
-            <div id="score-list"></div>
-        </div>
+        <button class="btn-top" onclick="toggleLeaderboard()" style="right: 20px; background: var(--accent); color: #000; border: none;">BXH</button>
+        <div id="leaderboard" class="leaderboard"><h3 style="text-align:center; margin-top:0;">TOP CAO THỦ</h3><div id="score-list"></div></div>
 
         <div class="logo">LATIV</div>
+        
         <div class="chat-window">
             <div id="chat-content">
-                <div class="msg ai-msg">Chào bạn! Mình đã chọn 1 địa danh tại TP.HCM. Hãy gõ tên địa danh để đoán. Nhấn "OK" để mình ra gợi ý nhé!</div>
+                <div class="msg ai-msg">Chào bạn! Nhập tên địa danh để đoán, hoặc gõ "OK" để nhận gợi ý mà không bị mất lượt nhé!</div>
             </div>
         </div>
 
         <div class="input-area">
-            <input type="text" id="user-input" placeholder="Nhập dự đoán...">
-            <button id="send-btn">GỬI</button>
+            <input type="text" id="user-input" placeholder="Dự đoán của bạn...">
+            <button id="send-btn" onclick="handleAction()" style="background: var(--accent); color: #000; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer;">GỬI</button>
+        </div>
+
+        <div class="theme-bar">
+            <div class="dot" style="background:#000" onclick="setTheme('')"></div>
+            <div class="dot" style="background:#fff" onclick="setTheme('theme-white')"></div>
+            <div class="dot" style="background:#007bff" onclick="setTheme('theme-blue')"></div>
+            <div class="dot" style="background:#c2185b" onclick="setTheme('theme-pink')"></div>
         </div>
     </div>
 
     <script>
         const database = [
-            { word: "landmark81", hints: ["Tòa nhà cao nhất VN", "Ở khu Tân Cảng", "Hình bó tre"] },
-            { word: "chobenthanh", hints: ["Biểu tượng Sài Gòn", "Có đồng hồ ở cửa Nam", "Ở Quận 1"] },
-            { word: "nhathoducba", hints: ["Kiến trúc Pháp gạch đỏ", "Cạnh Bưu điện TP", "Ở trung tâm Q1"] },
+            { word: "landmark81", hints: ["Tòa nhà cao nhất Việt Nam", "Ở khu Tân Cảng", "Hình bó tre"] },
+            { word: "chobenthanh", hints: ["Biểu tượng lâu đời Sài Gòn", "Có đồng hồ cửa Nam", "Tại Quận 1"] },
+            { word: "nhathoducba", hints: ["Kiến trúc Pháp gạch đỏ", "Cạnh Bưu điện TP", "Ở trung tâm"] },
             { word: "dinhdoclap", hints: ["Sự kiện 30/4", "Dinh Thống Nhất", "Hình chữ CÁT"] },
-            { word: "suoitien", hints: ["Khu du lịch Thủ Đức", "Biển Tiên Đồng", "Chủ đề truyền thuyết"] }
+            { word: "suoitien", hints: ["Khu du lịch Thủ Đức", "Biển Tiên Đồng", "Chủ đề truyền thuyết"] },
+            { word: "damsen", hints: ["Công viên nước Quận 11", "Điểm đến thiếu nhi", "Có vòng quay lớn"] }
         ];
-        
+
         let currentItem = database[Math.floor(Math.random() * database.length)];
         let tries = 0;
         let isGameOver = false;
         let playerName = "";
+        let isWaitingForNext = false;
 
         function setTheme(t) { document.body.className = t; }
-        function startGame() {
-            playerName = document.getElementById('player-name').value.trim();
-            if(playerName) document.getElementById('login-modal').style.display = 'none';
+        function startGame() { 
+            playerName = document.getElementById('player-name').value.trim(); 
+            if(playerName) document.getElementById('login-modal').style.display = 'none'; 
         }
         function toggleLeaderboard() { document.getElementById('leaderboard').classList.toggle('active'); }
-        function resetScores() { if(confirm("Xóa BXH?")) { localStorage.removeItem('lativ_scores'); updateLeaderboardUI(); } }
-
-        function updateLeaderboardUI() {
-            const scores = JSON.parse(localStorage.getItem('lativ_scores') || '[]');
-            document.getElementById('score-list').innerHTML = scores.map((s, i) => `
-                <div class="score-row"><span>${i+1}. ${s.name}</span><span style="color:var(--accent)">${s.tries} câu</span></div>
-            `).join('') || '<p style="text-align:center;font-size:0.7rem;">Chưa có kỷ lục</p>';
-        }
 
         function handleAction() {
-            if(isGameOver) return;
+            if(isGameOver || isWaitingForNext) return;
             const input = document.getElementById('user-input');
             const rawVal = input.value.trim();
             if(!rawVal) return;
 
             addMsg(rawVal, 'user');
             input.value = "";
+            isWaitingForNext = true;
 
-            const cleanInput = rawVal.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-            const skipWords = ["ok", "da", "vâng", "bat dau", "hi", "hello"];
+            setTimeout(() => {
+                const cleanInput = rawVal.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                const skipWords = ["ok", "da", "vâng", "chào", "hi"];
 
-            if(skipWords.includes(cleanInput)) {
-                addMsg(`Gợi ý cho bạn: ${currentItem.hints[tries % 3]}`, 'ai');
-                return; // KHÔNG TÍNH LƯỢT CHO LỜI CHÀO/OK
-            }
-
-            tries++; // CHỈ TÍNH LƯỢT KHI ĐOÁN THẬT
-            const val = cleanInput.replace(/\s+/g, '').replace(/-/g, '');
-            if(val === currentItem.word || (val.length > 3 && currentItem.word.includes(val))) {
-                addMsg(`CHÍNH XÁC! Đó là ${currentItem.word.toUpperCase()}. Bạn giải được sau ${tries} lượt đoán!`, 'ai');
-                saveScore();
-                isGameOver = true;
-                confetti({ particleCount: 150, spread: 70 });
-            } else if (tries >= 10) {
-                addMsg(`Hết lượt! Đáp án là ${currentItem.word.toUpperCase()}`, 'ai');
-                isGameOver = true;
-            } else {
-                addMsg(`Sai rồi! (Lượt ${tries}/10). Gợi ý tiếp: ${currentItem.hints[tries % 3]}`, 'ai');
-            }
+                if(skipWords.some(w => cleanInput === w)) {
+                    addMsg(`Gợi ý: ${currentItem.hints[tries % 3]}`, 'ai');
+                } else {
+                    tries++;
+                    const val = cleanInput.replace(/\s+/g, '').replace(/-/g, '');
+                    if(val === currentItem.word || (val.length > 3 && currentItem.word.includes(val))) {
+                        addMsg(`CHÍNH XÁC! Đó là ${currentItem.word.toUpperCase()}. Bạn thắng sau ${tries} lượt!`, 'ai');
+                        saveScore();
+                        isGameOver = true;
+                        confetti({ particleCount: 150, spread: 70 });
+                    } else if (tries >= 11) {
+                        addMsg(`Hết lượt! Đáp án là ${currentItem.word.toUpperCase()}`, 'ai');
+                        isGameOver = true;
+                    } else {
+                        addMsg(`Sai rồi! (Lượt ${tries}/11). Gợi ý: ${currentItem.hints[tries % 3]}`, 'ai');
+                    }
+                }
+                isWaitingForNext = false;
+            }, 500);
         }
 
         function saveScore() {
@@ -144,6 +138,14 @@
             scores.sort((a,b) => a.tries - b.tries);
             localStorage.setItem('lativ_scores', JSON.stringify(scores.slice(0, 10)));
             updateLeaderboardUI();
+        }
+
+        function updateLeaderboardUI() {
+            const scores = JSON.parse(localStorage.getItem('lativ_scores') || '[]');
+            document.getElementById('score-list').innerHTML = scores.map((s, i) => `
+                <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:0.8rem;">
+                    <span>${i+1}. ${s.name}</span><b>${s.tries} câu</b>
+                </div>`).join('') || 'Chưa có kỷ lục';
         }
 
         function addMsg(text, type) {
@@ -155,7 +157,6 @@
             content.scrollTop = content.scrollHeight;
         }
 
-        document.getElementById('send-btn').onclick = handleAction;
         document.getElementById('user-input').onkeydown = (e) => { if(e.key === 'Enter') handleAction(); };
         updateLeaderboardUI();
     </script>
