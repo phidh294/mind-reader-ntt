@@ -26,14 +26,12 @@
         .input-area { display: flex; gap: 10px; background: var(--card); padding: 10px; border-radius: 15px; border: 1px solid rgba(128,128,128,0.2); }
         input { flex: 1; background: transparent; border: none; color: var(--text); padding: 10px; outline: none; }
         
+        .btn-top { position: absolute; top: 20px; padding: 10px 15px; font-size: 0.75rem; cursor: pointer; border-radius: 8px; border: 1px solid var(--accent); font-weight: bold; background: transparent; color: var(--accent); transition: 0.2s; }
+        .btn-top:hover { background: var(--accent); color: #000; }
+        
         .theme-bar { display: flex; justify-content: center; gap: 15px; margin-top: 15px; padding: 10px; }
         .dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(128,128,128,0.5); transition: 0.2s; }
-        .dot:hover { transform: scale(1.2); }
 
-        .btn-top { position: absolute; top: 20px; padding: 8px 15px; font-size: 0.7rem; cursor: pointer; border-radius: 8px; border: 1px solid rgba(128,128,128,0.3); font-weight: bold; }
-        .leaderboard { position: absolute; top: 80px; right: -280px; width: 240px; background: var(--card); border: 1px solid var(--accent); border-radius: 15px; padding: 15px; transition: 0.5s; z-index: 50; }
-        .leaderboard.active { right: 20px; }
-        
         .modal { position: fixed; top:0; left:0; width:100%; height:100%; background: #000; z-index:100; display: flex; align-items: center; justify-content: center; }
         .modal-box { border: 1px solid var(--accent); padding: 40px; border-radius: 25px; text-align: center; background: #080808; width: 90%; max-width: 400px; color: #fff; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -50,19 +48,24 @@
     </div>
 
     <div class="app-container">
-        <button class="btn-top" onclick="toggleLeaderboard()" style="right: 20px; background: var(--accent); color: #000; border: none;">BXH</button>
-        <div id="leaderboard" class="leaderboard"><h3 style="text-align:center; margin-top:0;">TOP CAO THỦ</h3><div id="score-list"></div></div>
+        <button class="btn-top" onclick="location.reload()" style="left: 20px;">RESET</button>
+        <button class="btn-top" onclick="toggleLeaderboard()" style="right: 20px;">BXH</button>
+        
+        <div id="leaderboard" class="leaderboard" style="position: absolute; top: 80px; right: -280px; width: 240px; background: var(--card); border: 1px solid var(--accent); border-radius: 15px; padding: 15px; transition: 0.5s; z-index: 50;">
+            <h3 style="text-align:center; margin-top:0;">TOP CAO THỦ</h3>
+            <div id="score-list"></div>
+        </div>
 
         <div class="logo">LATIV</div>
         
         <div class="chat-window">
             <div id="chat-content">
-                <div class="msg ai-msg">Chào bạn! Nhập tên địa danh để đoán, hoặc gõ "OK" để nhận gợi ý mà không bị mất lượt nhé!</div>
+                <div class="msg ai-msg">Chào bạn! Hãy nhập tên địa danh bạn đoán. Hoặc gõ "OK" để mình gợi ý thêm nhé!</div>
             </div>
         </div>
 
         <div class="input-area">
-            <input type="text" id="user-input" placeholder="Dự đoán của bạn...">
+            <input type="text" id="user-input" placeholder="Nhập đầm sen, landmark81...">
             <button id="send-btn" onclick="handleAction()" style="background: var(--accent); color: #000; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer;">GỬI</button>
         </div>
 
@@ -79,7 +82,6 @@
             { word: "landmark81", hints: ["Tòa nhà cao nhất Việt Nam", "Ở khu Tân Cảng", "Hình bó tre"] },
             { word: "chobenthanh", hints: ["Biểu tượng lâu đời Sài Gòn", "Có đồng hồ cửa Nam", "Tại Quận 1"] },
             { word: "nhathoducba", hints: ["Kiến trúc Pháp gạch đỏ", "Cạnh Bưu điện TP", "Ở trung tâm"] },
-            { word: "dinhdoclap", hints: ["Sự kiện 30/4", "Dinh Thống Nhất", "Hình chữ CÁT"] },
             { word: "suoitien", hints: ["Khu du lịch Thủ Đức", "Biển Tiên Đồng", "Chủ đề truyền thuyết"] },
             { word: "damsen", hints: ["Công viên nước Quận 11", "Điểm đến thiếu nhi", "Có vòng quay lớn"] }
         ];
@@ -88,35 +90,48 @@
         let tries = 0;
         let isGameOver = false;
         let playerName = "";
-        let isWaitingForNext = false;
+        let isWaiting = false;
 
         function setTheme(t) { document.body.className = t; }
         function startGame() { 
             playerName = document.getElementById('player-name').value.trim(); 
             if(playerName) document.getElementById('login-modal').style.display = 'none'; 
         }
-        function toggleLeaderboard() { document.getElementById('leaderboard').classList.toggle('active'); }
+        function toggleLeaderboard() { 
+            const lb = document.getElementById('leaderboard');
+            lb.style.right = lb.style.right === '20px' ? '-280px' : '20px';
+        }
+
+        function removeVietnameseTones(str) {
+            str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+            str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+            str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+            str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+            str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+            str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+            str = str.replace(/đ/g, "d");
+            return str.toLowerCase().replace(/\s+/g, '').replace(/-/g, '');
+        }
 
         function handleAction() {
-            if(isGameOver || isWaitingForNext) return;
+            if(isGameOver || isWaiting) return;
             const input = document.getElementById('user-input');
             const rawVal = input.value.trim();
             if(!rawVal) return;
 
             addMsg(rawVal, 'user');
             input.value = "";
-            isWaitingForNext = true;
+            isWaiting = true;
 
             setTimeout(() => {
-                const cleanInput = rawVal.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-                const skipWords = ["ok", "da", "vâng", "chào", "hi"];
+                const cleanInput = removeVietnameseTones(rawVal);
+                const skipWords = ["ok", "da", "vâng", "chào"];
 
-                if(skipWords.some(w => cleanInput === w)) {
+                if(skipWords.includes(cleanInput)) {
                     addMsg(`Gợi ý: ${currentItem.hints[tries % 3]}`, 'ai');
                 } else {
                     tries++;
-                    const val = cleanInput.replace(/\s+/g, '').replace(/-/g, '');
-                    if(val === currentItem.word || (val.length > 3 && currentItem.word.includes(val))) {
+                    if(cleanInput === currentItem.word || (cleanInput.length > 3 && currentItem.word.includes(cleanInput))) {
                         addMsg(`CHÍNH XÁC! Đó là ${currentItem.word.toUpperCase()}. Bạn thắng sau ${tries} lượt!`, 'ai');
                         saveScore();
                         isGameOver = true;
@@ -128,7 +143,7 @@
                         addMsg(`Sai rồi! (Lượt ${tries}/11). Gợi ý: ${currentItem.hints[tries % 3]}`, 'ai');
                     }
                 }
-                isWaitingForNext = false;
+                isWaiting = false;
             }, 500);
         }
 
