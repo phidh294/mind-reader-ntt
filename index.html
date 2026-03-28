@@ -41,7 +41,7 @@
     </style>
 </head>
 <body>
-    <audio id="bg-music" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+    <audio id="bg-music" loop src="bg-music.mp3"></audio>
     <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
     <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
 
@@ -67,7 +67,7 @@
         
         <div class="chat-window">
             <div id="chat-content">
-                <div class="msg ai-msg">Chào bạn! Nhập địa danh bí mật hoặc gõ "OK" để nhận gợi ý.</div>
+                <div class="msg ai-msg">Chào bạn! Hãy nhập địa danh bạn đoán. Gõ "OK" để nhận gợi ý.</div>
             </div>
         </div>
 
@@ -86,13 +86,13 @@
 
     <script>
         const database = [
-            { word: "landmark81", hints: ["Tòa nhà cao nhất Việt Nam", "Ở khu Tân Cảng Bình Thạnh", "Bó tre truyền thống"] },
-            { word: "chobenthanh", hints: ["Biểu tượng lâu đời Sài Gòn", "Đồng hồ ở cửa Nam", "Trung tâm Quận 1"] },
-            { word: "nhathoducba", hints: ["Kiến trúc Pháp, gạch đỏ tía", "Cạnh Bưu điện Trung tâm", "Vương cung thánh đường"] },
-            { word: "suoitien", hints: ["Khu du lịch Thủ Đức", "Biển Tiên Đồng", "Truyền thuyết Việt"] },
-            { word: "damsen", hints: ["Công viên tại Quận 11", "Vòng quay lớn & công viên nước", "Điểm đến thiếu nhi"] },
-            { word: "dinhdoclap", hints: ["Di tích 30/4", "Dinh Thống Nhất", "Thiết kế hình chữ CÁT"] },
-            { word: "phomuonhue", hints: ["Phố đi bộ Quận 1", "Đường hoa Tết", "Tượng đài Bác Hồ"] }
+            { word: "landmark81", hints: ["Tòa nhà cao nhất Việt Nam", "Ở khu Tân Cảng Bình Thạnh", "Lấy cảm hứng từ bó tre"] },
+            { word: "chobenthanh", hints: ["Biểu tượng lâu đời Sài Gòn", "Đồng hồ ở cửa Nam", "Nằm tại trung tâm Quận 1"] },
+            { word: "nhathoducba", hints: ["Kiến trúc Pháp với gạch đỏ tía", "Cạnh Bưu điện Trung tâm TP", "Vương cung thánh đường"] },
+            { word: "suoitien", hints: ["Khu du lịch Thủ Đức", "Nổi tiếng với Biển Tiên Đồng", "Kiến trúc truyền thuyết"] },
+            { word: "damsen", hints: ["Công viên tại Quận 11", "Có vòng quay lớn và công viên nước", "Điểm đến thiếu nhi"] },
+            { word: "dinhdoclap", hints: ["Di tích lịch sử 30/4", "Còn gọi là Dinh Thống Nhất", "Hình chữ CÁT Hán tự"] },
+            { word: "phomuonhue", hints: ["Con đường đi bộ Quận 1", "Nơi tổ chức đường hoa Tết", "Có tượng đài Bác Hồ"] }
         ];
 
         let shuffledData = [...database].sort(() => Math.random() - 0.5);
@@ -108,8 +108,9 @@
             playerName = document.getElementById('player-name').value.trim(); 
             if(playerName) {
                 document.getElementById('login-modal').style.display = 'none';
-                // Bắt đầu chơi nhạc sau khi user tương tác (yêu cầu của trình duyệt)
-                document.getElementById('bg-music').play().catch(() => {});
+                // Phát nhạc bg-music.mp3 ngay khi nhấn nút
+                const bgMusic = document.getElementById('bg-music');
+                bgMusic.play().catch(e => console.log("Cần tương tác để phát nhạc"));
             }
         }
 
@@ -174,11 +175,16 @@
         function saveScore() {
             let scores = JSON.parse(localStorage.getItem('lativ_scores') || '[]');
             const existingIdx = scores.findIndex(s => s.name.toLowerCase() === playerName.toLowerCase());
+            
+            // Logic ghi đè kết quả nếu lượt đoán mới tốt hơn
             if (existingIdx !== -1) {
-                if (tries < scores[existingIdx].tries) scores[existingIdx].tries = tries;
+                if (tries < scores[existingIdx].tries) {
+                    scores[existingIdx].tries = tries;
+                }
             } else {
                 scores.push({ name: playerName, tries });
             }
+
             scores.sort((a,b) => a.tries - b.tries);
             localStorage.setItem('lativ_scores', JSON.stringify(scores.slice(0, 10)));
             updateLeaderboardUI();
