@@ -2,215 +2,308 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LATIV | CITY MASTER v9</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-
+    <title>Giao Dịch Tài Chính & Chỉ Số Chứng Khoán</title>
+<link rel="icon" type="image/png" href="logo.png">
     <style>
-        :root { --accent: #00f2ff; --bg: #000; --card: #111; }
-        * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
-        body { margin: 0; background: var(--bg); color: #fff; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
-        
-        .app { width: 100%; max-width: 500px; display: flex; flex-direction: column; padding: 20px; position: relative; }
-        .logo { font-size: 1.8rem; font-weight: 700; color: var(--accent); text-align: center; letter-spacing: 5px; margin-bottom: 15px; text-shadow: 0 0 10px var(--accent); }
-        
-        .chat-box { flex: 1; background: var(--card); border: 1px solid #222; border-radius: 20px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; border: 1px solid var(--accent); }
-        .msg { padding: 12px 18px; border-radius: 18px; max-width: 85%; font-size: 0.9rem; line-height: 1.4; animation: slideIn 0.3s ease; }
-        .ai { background: #1a1a1a; align-self: flex-start; border: 1px solid #333; }
-        .user { background: var(--accent); color: #000; align-self: flex-end; font-weight: bold; }
 
-        .input-area { display: flex; gap: 8px; background: #151515; padding: 10px; border-radius: 15px; border: 1px solid #333; }
-        input { flex: 1; background: transparent; border: none; color: #fff; outline: none; padding: 5px; }
-        button { background: var(--accent); border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        /* Biến màu sắc hệ thống - Mặc định là Dark Mode */
+        :root {
+            --bg-main: #121212;
+            --bg-sidebar: #181818;
+            --bg-header: #222222;
+            --text-color: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border-color: #333333;
+            --accent-color: #3498db;
+            --hover-color: #2c3e50;
+        }
 
-        .rank-btn { position: absolute; top: 25px; right: 20px; background: none; border: 1px solid var(--accent); color: var(--accent); padding: 5px 10px; border-radius: 5px; font-size: 0.7rem; cursor: pointer; }
-        .rank-panel { position: absolute; top: 65px; right: 20px; width: 180px; background: rgba(0,0,0,0.9); border: 1px solid var(--accent); padding: 10px; border-radius: 12px; font-size: 0.75rem; z-index: 100; display: none; }
-        
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .modal { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        /* Biến màu sắc khi chuyển sang Light Mode */
+        body.light-mode {
+            --bg-main: #f9f9f9;
+            --bg-sidebar: #f0f0f0;
+            --bg-header: #e0e0e0;
+            --text-color: #1a1a1a;
+            --text-muted: #555555;
+            --border-color: #cccccc;
+            --accent-color: #2980b9;
+            --hover-color: #e1f5fe;
+        }
+
+        body {
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            background: var(--bg-main);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Thanh bên Sidebar */
+        #sidebar {
+            width: 380px;
+            background: var(--bg-sidebar);
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s, border 0.3s;
+        }
+
+        #sidebar-header {
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Khu vực hiển thị Video */
+        #main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #video-player {
+            width: 100%;
+            max-width: 850px;
+            height: auto;
+            border-radius: 12px;
+            background: #000000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            display: block;
+        }
+
+        #current-title {
+            margin-top: 25px;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        /* Thiết kế các Thư mục Thu gọn */
+        .category-group {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .category-title {
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            background: var(--bg-header);
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .category-title:hover {
+            opacity: 0.9;
+        }
+
+        .category-title::after {
+            content: '▼';
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+
+        .category-group.collapsed .category-title::after {
+            transform: rotate(-90deg);
+        }
+
+        .video-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: block;
+        }
+
+        .category-group.collapsed .video-list {
+            display: none;
+        }
+
+        /* Các bài học con */
+        .video-item {
+            padding: 12px 30px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(0,0,0,0.02);
+            transition: all 0.2s;
+        }
+
+        .video-item:hover {
+            background: var(--hover-color);
+            color: var(--text-color);
+        }
+
+        .video-item.active {
+            color: var(--accent-color);
+            font-weight: bold;
+            background: var(--hover-color);
+            border-left: 4px solid var(--accent-color);
+            padding-left: 26px;
+        }
+
+        /* Giao diện Công tắc Switch Đổi Màu */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-text {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #444444;
+            transition: 0.3s;
+            border-radius: 22px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
     </style>
 </head>
 <body>
 
-    <audio id="bg-music" loop src="bg-music.mp3"></audio>
-
-    <div id="login-modal" class="modal">
-        <div style="text-align: center; width: 80%;">
-            <h1 style="color:var(--accent); letter-spacing: 5px;">LATIV</h1>
-            <p style="font-size: 0.6rem; opacity: 0.5; margin-bottom: 20px;">CITY MASTER × JETLAG</p>
-            <input type="text" id="p-name" placeholder="NHẬP TÊN CỦA BẠN..." style="width: 100%; padding: 15px; background: #111; border: 1px solid #333; color: #fff; text-align: center; border-radius: 10px; margin-bottom: 15px;">
-            <button onclick="initGame()" style="width: 100%; padding: 15px;">VÀO TRẬN</button>
+    <div id="sidebar">
+        <div id="sidebar-header">
+            <span>Nội dung khóa học</span>
+            <div class="theme-switch-wrapper">
+                <span class="theme-text">Light</span>
+                <label class="switch">
+                    <input type="checkbox" id="theme-checkbox" onchange="toggleTheme()">
+                    <span class="slider"></span>
+                </label>
+            </div>
         </div>
+        <div id="course-list"></div>
     </div>
 
-    <div id="rank-panel" class="rank-panel">
-        <div style="color:var(--accent); font-weight: bold; border-bottom: 1px solid #333; margin-bottom: 8px; padding-bottom: 5px;">TOP AGENTS</div>
-        <div id="rank-list">Loading...</div>
+    <div id="main">
+        <!-- Đã cấu hình không lạm dụng autoplay để chặn đứng lỗi tự động tràn màn hình -->
+        <video id="video-player" controls></video>
+        <h2 id="current-title">Chọn bài học để bắt đầu</h2>
     </div>
 
-    <div class="app">
-        <button class="rank-btn" onclick="toggleRank()">RANK</button>
-        <div class="logo">LATIV</div>
-        <div class="chat-box" id="chat"></div>
-        <div class="input-area">
-            <input type="text" id="user-input" placeholder="Dự đoán địa danh..." autocomplete="off">
-            <button id="send-btn" onclick="handlePlay()">GỬI</button>
-        </div>
-        <div style="text-align: center; font-size: 0.5rem; opacity: 0.3; margin-top: 10px; letter-spacing: 2px;">BRAND BY **JETLAG**</div>
-    </div>
-
+    <script src="data.js"></script>
     <script>
-        // --- [BẮT ĐẦU VÙNG CẤU HÌNH FIREBASE] ---
-        // Phi dán thông tin từ Firebase Console vào đây
-        const firebaseConfig = {
-            apiKey: "AIzaSyBvQyHAfaLGWYcmuiwQWYzxcK7clPq-Ag4",
-  authDomain: "lativ-city-master.firebaseapp.com",
-  databaseURL: "https://lativ-city-master-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "lativ-city-master",
-  storageBucket: "lativ-city-master.firebasestorage.app",
-  messagingSenderId: "577511383122",
-  appId: "1:577511383122:web:5332bb70d7857026aeff8b"
-        };
-        
-        // Tự động kiểm tra xem Phi đã dán key chưa
-        const isCloudEnabled = firebaseConfig.apiKey.includes("AIza"); 
-        if(isCloudEnabled) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        // --- [KẾT THÚC VÙNG CẤU HÌNH FIREBASE] ---
-
-        const locations = [
-            { word: "crescentmall", keys: ["crescent", "mall", "anhsao", "quan7"], hints: ["Nằm tại Quận 7", "Nổi tiếng với Cầu Ánh Sao", "Cạnh hồ Bán Nguyệt"] },
-            { word: "landmark81", keys: ["landmark", "81", "binhthanh", "tre"], hints: ["Tòa nhà cao nhất Việt Nam", "Lấy cảm hứng từ bó tre", "Tại khu Tân Cảng, Bình Thạnh"] },
-            { word: "chobenthanh", keys: ["benthanh", "quan1", "bieutuong"], hints: ["Biểu tượng lâu đời của Sài Gòn", "Có 4 cửa chính hướng ra các ngả đường Q1", "Điểm du lịch nổi tiếng"] },
-            { word: "suoitien", keys: ["suoitien", "thuduc", "tien"], hints: ["Khu du lịch ở Thủ Đức", "Có biển Tiên Đồng Ngọc Nữ", "Chủ đề thần thoại dân tộc"] },
-            { word: "damsen", keys: ["damsen", "quan11", "nuoc"], hints: ["Ở Quận 11", "Có công viên nước và vườn bách thú", "Vòng quay khổng lồ"] }
-        ];
-
-        let queue = [];
-        let cursor = 0;
-        let tries = 0;
-        let pName = "";
-        let isLocked = false;
-
-        function clean(s) {
-            return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/\s+/g, "");
-        }
-
-        function shuffle() {
-            queue = [...locations].sort(() => Math.random() - 0.5);
-            cursor = 0;
-        }
-
-        function initGame() {
-            pName = document.getElementById('p-name').value.trim();
-            if(!pName) return alert("Agent cần một danh tính!");
-            document.getElementById('login-modal').style.display = 'none';
-            document.getElementById('bg-music').play().catch(()=>{});
-            shuffle();
-            addMsg("ai", `Chào **${pName}**. Hãy giải mã địa danh đầu tiên. Gõ 'OK' để lấy thêm gợi ý.`);
-            updateRankUI();
-        }
-
-        async function handlePlay() {
-            if(isLocked) return; // Chống nhấn 2 lần
-            
-            const ui = document.getElementById('user-input');
-            const btn = document.getElementById('send-btn');
-            const val = ui.value.trim();
-            if(!val) return;
-
-            isLocked = true;
-            btn.disabled = true;
-            addMsg("user", val);
-            ui.value = "";
-
-            // Xử lý AI suy nghĩ
-            setTimeout(() => {
-                const ans = clean(val);
-                const current = queue[cursor];
-
-                if(ans === "ok") {
-                    addMsg("ai", `Gợi ý: ${current.hints[tries % 3]}`);
-                } else {
-                    tries++;
-                    const isMatch = current.keys.some(k => ans.includes(k)) || ans === current.word;
-
-                    if(isMatch) {
-                        addMsg("ai", `🎉 **TARGET ACQUIRED!** Đó chính là ${current.word.toUpperCase()}. Bạn giải được sau ${tries} lượt.`);
-                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-                        saveScore(tries);
-                        
-                        setTimeout(() => {
-                            tries = 0; cursor++;
-                            if(cursor >= queue.length) shuffle();
-                            addMsg("ai", "Bắt đầu nhiệm vụ tiếp theo...");
-                        }, 2500);
-                    } else {
-                        // TỰ ĐỘNG GỢI Ý KHI SAI (Tính năng Phi yêu cầu)
-                        const nextHint = current.hints[tries % current.hints.length];
-                        addMsg("ai", `❌ Không khớp! (Lượt ${tries}). <br><b>Gợi ý:</b> ${nextHint}`);
-                    }
-                }
-                isLocked = false;
-                btn.disabled = false;
-            }, 500);
-        }
-
-        function addMsg(type, txt) {
-            const chat = document.getElementById('chat');
-            const div = document.createElement('div');
-            div.className = `msg ${type}`;
-            div.innerHTML = txt;
-            chat.appendChild(div);
-            chat.scrollTop = chat.scrollHeight;
-        }
-
-        function toggleRank() {
-            const p = document.getElementById('rank-panel');
-            p.style.display = p.style.display === 'block' ? 'none' : 'block';
-        }
-
-        // --- HỆ THỐNG LƯU TRỮ (GLOBAL + LOCAL) ---
-        function saveScore(s) {
-            const data = { name: pName, score: s, date: new Date().toLocaleDateString() };
-            if(isCloudEnabled) {
-                firebase.database().ref('lativ_scores/' + clean(pName)).once('value').then(snap => {
-                    if(!snap.val() || s < snap.val().score) {
-                        firebase.database().ref('lativ_scores/' + clean(pName)).set(data);
-                    }
-                });
-            }
-            // Luôn lưu local dự phòng
-            let local = JSON.parse(localStorage.getItem('lativ_rank') || "[]");
-            local.push(data);
-            local.sort((a,b) => a.score - b.score);
-            localStorage.setItem('lativ_rank', JSON.stringify(local.slice(0,10)));
-            updateRankUI();
-        }
-
-        function updateRankUI() {
-            const list = document.getElementById('rank-list');
-            if(isCloudEnabled) {
-                firebase.database().ref('lativ_scores').orderByChild('score').limitToFirst(10).on('value', snap => {
-                    let h = "";
-                    snap.forEach(c => {
-                        const d = c.val();
-                        h += `<div style="margin-bottom:5px;">• ${d.name}: <b>${d.score}</b></div>`;
-                    });
-                    list.innerHTML = h || "Chưa có kỷ lục";
-                });
+        // Xử lý công tắc chuyển đổi giao diện Sáng / Tối
+        function toggleTheme() {
+            const checkbox = document.getElementById('theme-checkbox');
+            if (checkbox.checked) {
+                document.body.classList.add('light-mode');
             } else {
-                const local = JSON.parse(localStorage.getItem('lativ_rank') || "[]");
-                list.innerHTML = local.map(d => `<div>• ${d.name}: <b>${d.score}</b></div>`).join('') || "Chưa có kỷ lục";
+                document.body.classList.remove('light-mode');
             }
         }
 
-        document.getElementById('user-input').onkeydown = (e) => { if(e.key === 'Enter') handlePlay(); };
+        const container = document.getElementById('course-list');
+        const player = document.getElementById('video-player');
+        const title = document.getElementById('current-title');
+
+        // Phân loại dữ liệu dựa trên cấu trúc file thực tế quét được
+        const dataStore = {};
+        if (typeof localVideos !== 'undefined') {
+            localVideos.forEach(path => {
+                const parts = path.split('/');
+                if (parts.length > 1) {
+                    const cat = parts[0];
+                    if (!dataStore[cat]) dataStore[cat] = [];
+                    dataStore[cat].push({ name: parts[parts.length - 1], path: path });
+                }
+            });
+        }
+
+        // Sắp xếp các danh mục cha chuẩn theo số thứ tự (ví dụ: 10 đứng sau 2)
+        const sortedCategories = Object.keys(dataStore).sort((a, b) => 
+            a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'})
+        );
+
+        // Xuất cây danh mục ra giao diện trực quan
+        sortedCategories.forEach(cat => {
+            const group = document.createElement('div');
+            group.className = 'category-group'; // Giữ trạng thái mở mặc định, muốn đóng mặc định thì thêm lớp 'collapsed' tại đây
+            
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'category-title';
+            titleDiv.textContent = cat;
+            
+            // Tính năng thu gọn/mở rộng thư mục khi click vào tiêu đề
+            titleDiv.onclick = () => {
+                group.classList.toggle('collapsed');
+            };
+            
+            const listUl = document.createElement('ul');
+            listUl.className = 'video-list';
+            
+            // Sắp xếp bài học con bên trong danh mục
+            dataStore[cat].sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}))
+                .forEach(vid => {
+                    const itemLi = document.createElement('li');
+                    itemLi.className = 'video-item';
+                    itemLi.textContent = vid.name.replace(/\.[^/.]+$/, ""); // Lọc bỏ phần mở rộng đuôi file (.mp4, .mkv)
+                    
+                    itemLi.onclick = () => { 
+                        // Không dùng autoplay tự động kích hoạt hệ thống phát hình bừa bãi
+                        player.src = encodeURI(vid.path); 
+                        title.textContent = itemLi.textContent; 
+                        
+                        // Đánh dấu bài học đang chọn
+                        document.querySelectorAll('.video-item').forEach(el => el.classList.remove('active'));
+                        itemLi.classList.add('active');
+                    };
+                    listUl.appendChild(itemLi);
+                });
+
+            group.appendChild(titleDiv);
+            group.appendChild(listUl);
+            container.appendChild(group);
+        });
     </script>
 </body>
 </html>
